@@ -265,54 +265,54 @@
             margin-bottom: 0;
         }
 
-        /* --- Callback Scheduler Styling --- */
-        #calendar-container {
+        /* --- Callback Scheduler Styling (Shared) --- */
+        .calendar-container {
             border: 1px solid var(--border-color);
             border-radius: 4px;
             padding: 0.5rem;
             margin-bottom: 1rem;
         }
-        #calendar-header {
+        .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.5rem;
         }
-        #month-year-display {
+        .month-year-display {
             font-weight: 500;
         }
-        #calendar-header button {
+        .calendar-header button {
             background: none;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
             padding: 0 0.5rem;
         }
-        #calendar-weekdays, #calendar-body {
+        .calendar-weekdays, .calendar-body {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             text-align: center;
         }
-        #calendar-weekdays .weekday {
+        .calendar-weekdays .weekday {
             font-weight: 500;
             font-size: 0.8rem;
             padding: 0.25rem 0;
         }
-        #calendar-body .date-cell {
+        .calendar-body .date-cell {
             padding: 0.5rem 0;
             cursor: pointer;
             border-radius: 50%;
             transition: background-color 0.2s;
             position: relative;
         }
-        #calendar-body .date-cell:hover:not(.other-month) {
+        .calendar-body .date-cell:hover:not(.other-month) {
             background-color: #e9ecef;
         }
-        #calendar-body .date-cell.other-month {
+        .calendar-body .date-cell.other-month {
             color: #ccc;
             cursor: default;
         }
-        #calendar-body .date-cell.today::after {
+        .calendar-body .date-cell.today::after {
             content: '';
             position: absolute;
             bottom: 4px;
@@ -323,28 +323,21 @@
             border-radius: 50%;
             background-color: var(--bt-purple);
         }
-        #calendar-body .date-cell.selected {
+        .calendar-body .date-cell.selected {
             background-color: var(--primary-color);
             color: white;
         }
         
-        #callback-times-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        .time-picker-container {
+            display: flex;
+            align-items: center;
             gap: 0.5rem;
         }
-        .time-slot-button {
-            background-color: #f8f9fa;
-            border: 1px solid var(--border-color);
-            padding: 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            text-align: center;
+        .time-picker-container select {
+            flex-grow: 1;
         }
-        .time-slot-button.active {
-            background-color: var(--bt-purple);
-            color: white;
-            border-color: var(--bt-purple);
+        .time-picker-container span {
+            font-weight: bold;
         }
 
 
@@ -459,18 +452,22 @@
                                 </div>
                                 <div class="form-group hidden" id="callback-scheduler-container">
                                     <label>Select Callback Date & Time</label>
-                                    <div id="calendar-container">
-                                        <div id="calendar-header">
+                                    <div id="calendar-container" class="calendar-container">
+                                        <div class="calendar-header">
                                             <button type="button" id="prev-month-btn">&lt;</button>
-                                            <span id="month-year-display"></span>
+                                            <span id="month-year-display" class="month-year-display"></span>
                                             <button type="button" id="next-month-btn">&gt;</button>
                                         </div>
-                                        <div id="calendar-weekdays">
+                                        <div class="calendar-weekdays">
                                             <div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div><div class="weekday">Sun</div>
                                         </div>
-                                        <div id="calendar-body"></div>
+                                        <div id="calendar-body" class="calendar-body"></div>
                                     </div>
-                                    <div id="callback-times-container"></div>
+                                    <div id="callback-times-container" class="time-picker-container">
+                                        <select id="main-hour-picker"></select>
+                                        <span>:</span>
+                                        <select id="main-minute-picker"></select>
+                                    </div>
                                     <input type="hidden" id="callback-details" name="callback-details">
                                 </div>
                             </div>
@@ -558,6 +555,34 @@
                             </div>
                         </div>
                     </div>
+                     <div class="form-step">
+                        <h3>Offline: Callback?</h3>
+                        <div class="step-content">
+                             <div class="form-group">
+                                <label class="callback-label"><input type="checkbox" id="offline-callback-booked"> Book callback?</label>
+                            </div>
+                            <div class="form-group hidden" id="offline-callback-scheduler-container">
+                                <label>Select Callback Date & Time</label>
+                                <div id="offline-calendar-container" class="calendar-container">
+                                    <div class="calendar-header">
+                                        <button type="button" id="offline-prev-month-btn">&lt;</button>
+                                        <span id="offline-month-year-display" class="month-year-display"></span>
+                                        <button type="button" id="offline-next-month-btn">&gt;</button>
+                                    </div>
+                                    <div class="calendar-weekdays">
+                                        <div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div><div class="weekday">Sun</div>
+                                    </div>
+                                    <div id="offline-calendar-body" class="calendar-body"></div>
+                                </div>
+                                <div id="offline-callback-times-container" class="time-picker-container">
+                                      <select id="offline-hour-picker"></select>
+                                      <span>:</span>
+                                      <select id="offline-minute-picker"></select>
+                                </div>
+                                <input type="hidden" id="offline-callback-details" name="offline-callback-details">
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-step">
                         <h3>Offline: Additional Info</h3>
                         <div class="step-content">
@@ -609,9 +634,64 @@
                 { id: 'tree_cutting', category: 'Delays', dropdownText: 'Tree Cutting (13 Weeks)'},
             ];
             const mockErrorDatabase = [
-                { code: '101116', description: 'Openreach Provision delayed due to line plant' },
-                { code: '101084', description: 'Delay due to issues with underground network' },
-                { code: '101107', description: 'Sent to Survey, await response from Openreach' }
+                { code: '521', description: "Changes to appointment" },
+                { code: '523', description: "New appointment required" },
+                { code: '524', description: "New appointment required" },
+                { code: '525', description: "Changes to appointment" },
+                { code: '566', description: "New appointment required" },
+                { code: '584', description: "Further work required" },
+                { code: '585', description: "Further work required" },
+                { code: '586', description: "Survey" },
+                { code: '2001', description: "Contact details supplied don't match database" },
+                { code: '5045', description: "Changes to appointment" },
+                { code: '5197', description: "New appointment required" },
+                { code: '5466', description: "Planning and design" },
+                { code: '5472', description: "New appointment required" },
+                { code: '5742', description: "Survey" },
+                { code: '5789', description: "Changes to appointment" },
+                { code: '9652-2', description: "Planning and design" },
+                { code: '9652-4', description: "Planning and design" },
+                { code: '9662', description: "Delayed in Planning" },
+                { code: '9775-1', description: "Further work required" },
+                { code: '9775-1', description: "New appointment required" },
+                { code: '9798', description: "Engineer unable to complete work" },
+                { code: '9881', description: "Engineer unable to complete work" },
+                { code: '100221', description: "Haven't sent a new appointment within 15 days of request" },
+                { code: '100313', description: "No asset for given ALID (order needs to be cancelled and replaced)" },
+                { code: '101002', description: "Planning and design" },
+                { code: '101003', description: "Awaiting D share routing" },
+                { code: '101018', description: "PSTN delay" },
+                { code: '101021', description: "Delayed in Planning" },
+                { code: '101031', description: "Openreach querying whether to proceed with the order" },
+                { code: '101074', description: "Further work required" },
+                { code: '101075', description: "Openreach is waiting for information from the CP (Communications Provider)" },
+                { code: '101078', description: "Network build status update (Ready to build, Installing, Complete, etc.)" },
+                { code: '101082', description: "Line plant delay" },
+                { code: '101084', description: "Issues with the underground network" },
+                { code: '101092', description: "Required work exceeded the time allocation; new appointment needed" },
+                { code: '101093', description: "Further work is needed by Openreach" },
+                { code: '101095', description: "Fault on the distribution side network" },
+                { code: '101107', description: "Survey" },
+                { code: '101110', description: "Safety-related hazard" },
+                { code: '101115', description: "Planning and design" },
+                { code: '101116', description: "Planning and design" },
+                { code: '101130', description: "New appointment required" },
+                { code: '101131', description: "New appointment required" },
+                { code: '101132', description: "Additional build works impacting order; re-appointment needed" },
+                { code: '101133', description: "Additional Traffic Management Act (TMA) impact; re-appointment needed" },
+                { code: '101134', description: "Order on waiters list due to network capacity issues" },
+                { code: '101146', description: "End Customer provided instructions different to those from the CP" },
+                { code: '101147', description: "Engineer missed the slot or was unable to complete the installation" },
+                { code: '101148', description: "Engineer missed the slot or was unable to complete the installation" },
+                { code: '101153', description: "Engineer missed the slot or was unable to complete the installation" },
+                { code: '101158', description: "Appointment missed due to an End Customer missed scenario" },
+                { code: '101160', description: "Order passed to Network Addressing Team (NAT) to identify the address" },
+                { code: '101161', description: "Order requires a survey (various reasons)" },
+                { code: '101163', description: "Delayed in Planning" },
+                { code: '101165', description: "The original routing is unavailable; working on an alternative" },
+                { code: '101165', description: "Order has been identified as a new site by BT Wholesale" },
+                { code: '101166', description: "Planning and design" },
+                { code: '101171', description: "Appointment missed due to an End Customer missed scenario" }
             ];
 
             // --- Element Selectors ---
@@ -651,18 +731,28 @@
             const customerAnsweredRadios = document.querySelectorAll('input[name="customer-answered"]');
             const customerVerifiedGroup = document.getElementById('customer-verified-group');
 
-            // Callback selectors
+            // Callback selectors (Standard Workflow)
             const callbackBookedCheckbox = document.getElementById('callback-booked');
             const callbackSchedulerContainer = document.getElementById('callback-scheduler-container');
             const callbackDetailsInput = document.getElementById('callback-details');
-            const callbackTimesContainer = document.getElementById('callback-times-container');
-            
-            // Calendar selectors
+            const mainHourPicker = document.getElementById('main-hour-picker');
+            const mainMinutePicker = document.getElementById('main-minute-picker');
             const monthYearDisplay = document.getElementById('month-year-display');
             const calendarBody = document.getElementById('calendar-body');
             const prevMonthBtn = document.getElementById('prev-month-btn');
             const nextMonthBtn = document.getElementById('next-month-btn');
 
+            // Callback selectors (Offline Workflow)
+            const offlineCallbackBookedCheckbox = document.getElementById('offline-callback-booked');
+            const offlineCallbackSchedulerContainer = document.getElementById('offline-callback-scheduler-container');
+            const offlineCallbackDetailsInput = document.getElementById('offline-callback-details');
+            const offlineHourPicker = document.getElementById('offline-hour-picker');
+            const offlineMinutePicker = document.getElementById('offline-minute-picker');
+            const offlineMonthYearDisplay = document.getElementById('offline-month-year-display');
+            const offlineCalendarBody = document.getElementById('offline-calendar-body');
+            const offlinePrevMonthBtn = document.getElementById('offline-prev-month-btn');
+            const offlineNextMonthBtn = document.getElementById('offline-next-month-btn');
+            
             
             // --- INITIALIZATION ---
             
@@ -674,19 +764,55 @@
                 delayReasonSelect.appendChild(option);
             });
             
+            // --- Calendar & Time Picker Logic ---
+            let selectedDateMain = null;
+            let selectedDateOffline = null;
 
-            // --- Calendar Logic ---
-            let currentDate = new Date();
-            let currentYear = currentDate.getFullYear();
-            let currentMonth = currentDate.getMonth();
+            const setupTimePicker = (hourPicker, minutePicker, hiddenInput, dateRef, startHour, endHour) => {
+                let hourOptions = '';
+                let minuteOptions = '';
 
-            const renderCalendar = (year, month) => {
-                calendarBody.innerHTML = '';
+                // Default hour is the start of the range (e.g., 08)
+                const defaultHour = String(startHour).padStart(2, '0');
+
+                for (let i = startHour; i <= endHour; i++) {
+                    const hour = String(i).padStart(2, '0');
+                    // The selected attribute is added to the defaultHour
+                    hourOptions += `<option value="${hour}" ${hour === defaultHour ? 'selected' : ''}>${hour}</option>`;
+                }
+
+                // Create minute options in 5-minute increments
+                for (let i = 0; i < 60; i += 5) {
+                    const minute = String(i).padStart(2, '0');
+                     // The selected attribute is added to '00'
+                    minuteOptions += `<option value="${minute}" ${minute === '00' ? 'selected' : ''}>${minute}</option>`;
+                }
+
+                hourPicker.innerHTML = hourOptions;
+                minutePicker.innerHTML = minuteOptions;
+                
+                const updateHiddenInput = () => {
+                    if (dateRef && hourPicker.value && minutePicker.value) {
+                        hiddenInput.value = `${dateRef.getFullYear()}-${String(dateRef.getMonth() + 1).padStart(2, '0')}-${String(dateRef.getDate()).padStart(2, '0')} ${hourPicker.value}:${minutePicker.value}`;
+                    } else {
+                        hiddenInput.value = '';
+                    }
+                };
+                
+                // Immediately update the hidden input with the default time
+                updateHiddenInput();
+
+                hourPicker.addEventListener('change', updateHiddenInput);
+                minutePicker.addEventListener('change', updateHiddenInput);
+            };
+
+            const renderCalendar = (year, month, calendarBodyEl, monthYearDisplayEl, onDateSelect) => {
+                calendarBodyEl.innerHTML = '';
                 const firstDayOfMonth = new Date(year, month, 1);
                 const lastDateOfMonth = new Date(year, month + 1, 0);
                 const lastDateOfPrevMonth = new Date(year, month, 0);
 
-                monthYearDisplay.textContent = firstDayOfMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+                monthYearDisplayEl.textContent = firstDayOfMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
                 let firstDayIndex = firstDayOfMonth.getDay(); 
                 if (firstDayIndex === 0) firstDayIndex = 7; 
@@ -696,7 +822,7 @@
                     const cell = document.createElement('div');
                     cell.classList.add('date-cell', 'other-month');
                     cell.textContent = day;
-                    calendarBody.appendChild(cell);
+                    calendarBodyEl.appendChild(cell);
                 }
 
                 for (let i = 1; i <= lastDateOfMonth.getDate(); i++) {
@@ -710,93 +836,97 @@
                     }
 
                     cell.addEventListener('click', () => {
-                        document.querySelectorAll('.date-cell.selected').forEach(c => c.classList.remove('selected'));
+                        calendarBodyEl.querySelectorAll('.date-cell.selected').forEach(c => c.classList.remove('selected'));
                         cell.classList.add('selected');
                         const selectedDate = new Date(year, month, i);
-                        generateTimeSlots(selectedDate);
+                        onDateSelect(selectedDate);
                     });
-                    calendarBody.appendChild(cell);
+                    calendarBodyEl.appendChild(cell);
                 }
             };
-
+            
+            // Setup Main Calendar
+            let main_currentDate = new Date();
+            let main_currentYear = main_currentDate.getFullYear();
+            let main_currentMonth = main_currentDate.getMonth();
             prevMonthBtn.addEventListener('click', () => {
-                currentMonth--;
-                if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-                renderCalendar(currentYear, currentMonth);
+                main_currentMonth--;
+                if (main_currentMonth < 0) { main_currentMonth = 11; main_currentYear--; }
+                renderCalendar(main_currentYear, main_currentMonth, calendarBody, monthYearDisplay, (date) => {
+                     selectedDateMain = date;
+                     setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20); // M-Sa 8-8
+                });
             });
-
             nextMonthBtn.addEventListener('click', () => {
-                currentMonth++;
-                if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-                renderCalendar(currentYear, currentMonth);
+                main_currentMonth++;
+                if (main_currentMonth > 11) { main_currentMonth = 0; main_currentYear++; }
+                renderCalendar(main_currentYear, main_currentMonth, calendarBody, monthYearDisplay, (date) => {
+                    selectedDateMain = date;
+                    setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20); // M-Sa 8-8
+                });
             });
 
-
-            const generateTimeSlots = (date) => {
-                callbackTimesContainer.innerHTML = '';
-                callbackDetailsInput.value = ''; // Reset selection
-                const day = date.getDay();
-                const isSunday = day === 0;
-                
-                const startHour = isSunday ? 9 : 8;
-                const endHour = isSunday ? 19 : 20;
-
-                for (let h = startHour; h < endHour; h++) {
-                    for (let m = 0; m < 60; m += 15) {
-                        const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-                        const button = document.createElement('button');
-                        button.type = 'button';
-                        button.classList.add('time-slot-button');
-                        button.textContent = time;
-
-                        button.addEventListener('click', () => {
-                             document.querySelectorAll('.time-slot-button').forEach(btn => btn.classList.remove('active'));
-                             button.classList.add('active');
-                             const selectedDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                             callbackDetailsInput.value = `${selectedDateStr} ${time}`;
-                        });
-                        callbackTimesContainer.appendChild(button);
-                    }
-                }
-            };
-
+            // Setup Offline Calendar
+            let offline_currentDate = new Date();
+            let offline_currentYear = offline_currentDate.getFullYear();
+            let offline_currentMonth = offline_currentDate.getMonth();
+            offlinePrevMonthBtn.addEventListener('click', () => {
+                offline_currentMonth--;
+                if (offline_currentMonth < 0) { offline_currentMonth = 11; offline_currentYear--; }
+                renderCalendar(offline_currentYear, offline_currentMonth, offlineCalendarBody, offlineMonthYearDisplay, (date) => {
+                    selectedDateOffline = date;
+                    setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21);
+                });
+            });
+            offlineNextMonthBtn.addEventListener('click', () => {
+                offline_currentMonth++;
+                if (offline_currentMonth > 11) { offline_currentMonth = 0; offline_currentYear++; }
+                renderCalendar(offline_currentYear, offline_currentMonth, offlineCalendarBody, offlineMonthYearDisplay, (date) => {
+                    selectedDateOffline = date;
+                    setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21);
+                });
+            });
 
             // --- Error Code Search Functionality ---
             const setupSearch = (inputElement, resultsContainer) => {
-                const displayResults = (results) => {
-                    resultsContainer.innerHTML = '';
-                    if (results.length === 0) {
-                        resultsContainer.classList.add('hidden');
-                        return;
-                    }
-                    // Add "No Code" option to results if user is searching
-                    const noCodeResult = { code: 'No Code', description: 'No specific error code provided' };
-                    
-                    results.unshift(noCodeResult); // Add to the beginning of the array
-
-                    results.forEach(result => {
-                        const item = document.createElement('div');
-                        item.classList.add('search-result-item');
-                        item.innerHTML = `<strong>${result.code}</strong> - ${result.description}`;
-                        item.addEventListener('click', () => {
-                            inputElement.value = result.code;
-                            resultsContainer.classList.add('hidden');
-                        });
-                        resultsContainer.appendChild(item);
-                    });
-                    resultsContainer.classList.remove('hidden');
-                };
-
                 inputElement.addEventListener('input', () => {
                     const query = inputElement.value.trim().toLowerCase();
+                    resultsContainer.innerHTML = ''; // Clear previous results
+
                     if (query.length < 1) {
                         resultsContainer.classList.add('hidden');
                         return;
                     }
-                    const filteredResults = mockErrorDatabase.filter(item =>
+
+                    let finalResults = [];
+                    const noCodeResult = { code: 'No Code', description: 'No specific error code provided' };
+
+                    // Check if "No Code" itself should be a result
+                    if (noCodeResult.code.toLowerCase().includes(query) || noCodeResult.description.toLowerCase().includes(query)) {
+                        finalResults.push(noCodeResult);
+                    }
+
+                    // Add filtered results from the database
+                    const filteredDb = mockErrorDatabase.filter(item =>
                         item.code.toLowerCase().includes(query) || item.description.toLowerCase().includes(query)
                     );
-                    displayResults(filteredResults);
+                    finalResults = finalResults.concat(filteredDb);
+                    
+                    if (finalResults.length > 0) {
+                        finalResults.forEach(result => {
+                            const item = document.createElement('div');
+                            item.classList.add('search-result-item');
+                            item.innerHTML = `<strong>${result.code}</strong> - ${result.description}`;
+                            item.addEventListener('click', () => {
+                                inputElement.value = result.code;
+                                resultsContainer.classList.add('hidden');
+                            });
+                            resultsContainer.appendChild(item);
+                        });
+                        resultsContainer.classList.remove('hidden');
+                    } else {
+                         resultsContainer.classList.add('hidden');
+                    }
                 });
                  // Hide search results when clicking elsewhere
                 document.addEventListener('click', (event) => {
@@ -891,7 +1021,7 @@
                     const delayErrorCode2 = delayErrorCodeInput2.value.trim();
                     
                     let combinedErrorCodes = delayErrorCode1;
-                    if (combinedErrorCodes === "No Code") {
+                    if (!combinedErrorCodes || combinedErrorCodes === "No Code") {
                         combinedErrorCodes = "No Code Provided";
                     }
 
@@ -919,6 +1049,16 @@
                     const isResolved = offlineResolvedCheckbox.checked;
                     const numberValue = offlineNumberInput.value.trim();
                     const additionalInfo = additionalInfoInput.value.trim();
+                    
+                    const callbackBooked = offlineCallbackBookedCheckbox.checked;
+                    let callbackDetailsText = 'No';
+                     if (callbackBooked && offlineCallbackDetailsInput.value) {
+                         const cbDate = new Date(offlineCallbackDetailsInput.value);
+                         callbackDetailsText = `Yes - ${cbDate.toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' })}`;
+                    } else if (callbackBooked) {
+                         callbackDetailsText = `Yes (No time selected)`;
+                    }
+
 
                     let hashtags = [];
                     if (isResolved) {
@@ -938,6 +1078,7 @@ ${formatLine('Delay Error Code(s)', combinedErrorCodes)}
 ${formatLine('Delay Reason', delayReasonText.includes('Select') ? 'N/A' : delayReasonText)}
 ${formatLine('Contact Summary', contactAttempts)}
 ${formatLine('SMS Summary', smsAttempts)}
+${formatLine('Callback Booked', callbackDetailsText)}
 ${formatLine('Resolution', hashtags.join(' ') || 'N/A')}
 
 ---[ ADDITIONAL INFO ]-----------------------------------
@@ -1007,14 +1148,29 @@ ${reason || 'No reason provided.'}
                 outputNoteTextarea.value = finalNote;
             });
 
-            // 8. Toggle visibility of the callback scheduler
+            // 8. Toggle visibility of callback schedulers
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
                     callbackSchedulerContainer.classList.remove('hidden');
-                    renderCalendar(currentYear, currentMonth);
+                    renderCalendar(main_currentYear, main_currentMonth, calendarBody, monthYearDisplay, (date) => {
+                        selectedDateMain = date;
+                        setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20); // M-Sa 8-8
+                    });
                 } else {
                     callbackSchedulerContainer.classList.add('hidden');
                     callbackDetailsInput.value = '';
+                }
+            });
+            offlineCallbackBookedCheckbox.addEventListener('change', () => {
+                if (offlineCallbackBookedCheckbox.checked) {
+                    offlineCallbackSchedulerContainer.classList.remove('hidden');
+                     renderCalendar(offline_currentYear, offline_currentMonth, offlineCalendarBody, offlineMonthYearDisplay, (date) => {
+                        selectedDateOffline = date;
+                        setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21);
+                    });
+                } else {
+                    offlineCallbackSchedulerContainer.classList.add('hidden');
+                    offlineCallbackDetailsInput.value = '';
                 }
             });
 
@@ -1050,6 +1206,7 @@ ${reason || 'No reason provided.'}
                 validationYesPath.classList.add('hidden');
                 validationNoPath.classList.add('hidden');
                 callbackSchedulerContainer.classList.add('hidden');
+                offlineCallbackSchedulerContainer.classList.add('hidden');
                 customerVerifiedGroup.classList.remove('hidden');
                 step1Container.classList.remove('collapsed');
                 addSecondCodeCheckbox.checked = false;
