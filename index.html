@@ -488,12 +488,23 @@
                                 <input type="text" id="delay-error-code" autocomplete="off">
                                 <div id="error-code-results" class="search-results hidden"></div>
                             </div>
-                             <div class="form-group">
+                            <div class="form-group choice-group">
+                                <label><input type="checkbox" id="add-second-code-checkbox"> Add second error code</label>
+                            </div>
+                            <div class="form-group hidden" id="second-error-code-container">
+                                <label for="delay-error-code-2">Enter or Search for Second Delay Error Code</label>
+                                <input type="text" id="delay-error-code-2" autocomplete="off">
+                                <div id="error-code-results-2" class="search-results hidden"></div>
+                            </div>
+                             <div class="form-group" id="delay-reason-group">
                                 <label for="delay-reason">Reason for Delay</label>
                                 <select id="delay-reason">
                                     <option value="" selected disabled>Select delay reason...</option>
                                     <!-- Options will be populated by JavaScript -->
                                 </select>
+                            </div>
+                            <div class="form-group choice-group">
+                                <label><input type="checkbox" id="no-delay-checkbox"> No Delay?</label>
                             </div>
                         </div>
                     </div>
@@ -598,11 +609,6 @@
                 { id: 'tree_cutting', category: 'Delays', dropdownText: 'Tree Cutting (13 Weeks)'},
             ];
             const mockErrorDatabase = [
-                { code: 'F123', description: 'Network connection timeout' },
-                { code: 'F456', description: 'Authentication failure' },
-                { code: 'A789', description: 'Account provisioning error' },
-                { code: 'A790', description: 'Account sync issue' },
-                { code: 'B111', description: 'Billing system mismatch' },
                 { code: '101116', description: 'Openreach Provision delayed due to line plant' },
                 { code: '101084', description: 'Delay due to issues with underground network' },
                 { code: '101107', description: 'Sent to Survey, await response from Openreach' }
@@ -632,7 +638,13 @@
             // Offline workflow selectors
             const delayErrorCodeInput = document.getElementById('delay-error-code');
             const delayReasonSelect = document.getElementById('delay-reason');
+            const delayReasonGroup = document.getElementById('delay-reason-group');
+            const noDelayCheckbox = document.getElementById('no-delay-checkbox');
             const errorCodeResultsContainer = document.getElementById('error-code-results');
+            const addSecondCodeCheckbox = document.getElementById('add-second-code-checkbox');
+            const secondErrorCodeContainer = document.getElementById('second-error-code-container');
+            const delayErrorCodeInput2 = document.getElementById('delay-error-code-2');
+            const errorCodeResultsContainer2 = document.getElementById('error-code-results-2');
             const additionalInfoInput = document.getElementById('additional-info');
             const offlineResolvedCheckbox = document.getElementById('offline-resolved');
             const offlineNumberInput = document.getElementById('offline-number-input');
@@ -750,44 +762,52 @@
 
 
             // --- Error Code Search Functionality ---
-            const displayErrorCodeResults = (results) => {
-                errorCodeResultsContainer.innerHTML = '';
-                if (results.length === 0) {
-                    errorCodeResultsContainer.classList.add('hidden');
-                    return;
-                }
-                results.forEach(result => {
-                    const item = document.createElement('div');
-                    item.classList.add('search-result-item');
-                    item.innerHTML = `<strong>${result.code}</strong> - ${result.description}`;
-                    item.addEventListener('click', () => {
-                        delayErrorCodeInput.value = result.code;
-                        errorCodeResultsContainer.classList.add('hidden');
+            const setupSearch = (inputElement, resultsContainer) => {
+                const displayResults = (results) => {
+                    resultsContainer.innerHTML = '';
+                    if (results.length === 0) {
+                        resultsContainer.classList.add('hidden');
+                        return;
+                    }
+                    // Add "No Code" option to results if user is searching
+                    const noCodeResult = { code: 'No Code', description: 'No specific error code provided' };
+                    
+                    results.unshift(noCodeResult); // Add to the beginning of the array
+
+                    results.forEach(result => {
+                        const item = document.createElement('div');
+                        item.classList.add('search-result-item');
+                        item.innerHTML = `<strong>${result.code}</strong> - ${result.description}`;
+                        item.addEventListener('click', () => {
+                            inputElement.value = result.code;
+                            resultsContainer.classList.add('hidden');
+                        });
+                        resultsContainer.appendChild(item);
                     });
-                    errorCodeResultsContainer.appendChild(item);
+                    resultsContainer.classList.remove('hidden');
+                };
+
+                inputElement.addEventListener('input', () => {
+                    const query = inputElement.value.trim().toLowerCase();
+                    if (query.length < 1) {
+                        resultsContainer.classList.add('hidden');
+                        return;
+                    }
+                    const filteredResults = mockErrorDatabase.filter(item =>
+                        item.code.toLowerCase().includes(query) || item.description.toLowerCase().includes(query)
+                    );
+                    displayResults(filteredResults);
                 });
-                errorCodeResultsContainer.classList.remove('hidden');
+                 // Hide search results when clicking elsewhere
+                document.addEventListener('click', (event) => {
+                    if (!inputElement.contains(event.target)) {
+                       resultsContainer.classList.add('hidden');
+                    }
+                });
             };
 
-            delayErrorCodeInput.addEventListener('input', () => {
-                const query = delayErrorCodeInput.value.trim().toLowerCase();
-                if (query.length < 1) {
-                    errorCodeResultsContainer.classList.add('hidden');
-                    return;
-                }
-                // In a real application, this would be an API call to a database
-                const filteredResults = mockErrorDatabase.filter(item =>
-                    item.code.toLowerCase().includes(query) || item.description.toLowerCase().includes(query)
-                );
-                displayErrorCodeResults(filteredResults);
-            });
-
-            // Hide search results when clicking elsewhere in the document
-            document.addEventListener('click', (event) => {
-                if (!delayErrorCodeInput.contains(event.target)) {
-                    errorCodeResultsContainer.classList.add('hidden');
-                }
-            });
+            setupSearch(delayErrorCodeInput, errorCodeResultsContainer);
+            setupSearch(delayErrorCodeInput2, errorCodeResultsContainer2);
 
 
             // --- EVENT LISTENERS ---
@@ -837,9 +857,27 @@
                     }
                 });
             });
+            
+            // 5. Checkbox for second error code
+            addSecondCodeCheckbox.addEventListener('change', () => {
+                secondErrorCodeContainer.classList.toggle('hidden');
+                if (!addSecondCodeCheckbox.checked) {
+                    delayErrorCodeInput2.value = ''; // Clear on hide
+                }
+            });
+
+            // 6. Checkbox for "No Delay?"
+            noDelayCheckbox.addEventListener('change', () => {
+                if (noDelayCheckbox.checked) {
+                    delayReasonGroup.classList.add('hidden');
+                    delayReasonSelect.value = ''; // Reset selection
+                } else {
+                    delayReasonGroup.classList.remove('hidden');
+                }
+            });
 
 
-            // 5. Handle form submission
+            // 7. Handle form submission
             noteForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
@@ -849,8 +887,25 @@
                 const formatLine = (key, value) => `${key.padEnd(20, ' ')}: ${value || 'N/A'}`;
 
                 if (selectedArea === 'Offline') {
-                    const delayErrorCode = delayErrorCodeInput.value.trim();
-                    const delayReason = delayReasonSelect.options[delayReasonSelect.selectedIndex].text;
+                    const delayErrorCode1 = delayErrorCodeInput.value.trim();
+                    const delayErrorCode2 = delayErrorCodeInput2.value.trim();
+                    
+                    let combinedErrorCodes = delayErrorCode1;
+                    if (combinedErrorCodes === "No Code") {
+                        combinedErrorCodes = "No Code Provided";
+                    }
+
+                    if(delayErrorCode2 && delayErrorCode2 !== "No Code") {
+                        combinedErrorCodes += `, ${delayErrorCode2}`;
+                    }
+
+                    let delayReasonText;
+                    if (noDelayCheckbox.checked) {
+                        delayReasonText = "No Delay";
+                    } else {
+                        delayReasonText = delayReasonSelect.options[delayReasonSelect.selectedIndex].text;
+                    }
+                    
                     const preTextSent = document.querySelector('input[name="pre-text-sent"]:checked')?.value || 'N/A';
                     const customerAnswered = document.querySelector('input[name="customer-answered"]:checked')?.value || 'N/A';
                     let customerVerified = document.querySelector('input[name="customer-verified"]:checked')?.value || 'N/A';
@@ -879,8 +934,8 @@
                     finalNote = `
 ---[ OFFLINE WORKFLOW ]----------------------------------
 ${formatLine('Business Area', 'Offline')}
-${formatLine('Delay Error Code', delayErrorCode)}
-${formatLine('Delay Reason', delayReason.includes('Select') ? 'N/A' : delayReason)}
+${formatLine('Delay Error Code(s)', combinedErrorCodes)}
+${formatLine('Delay Reason', delayReasonText.includes('Select') ? 'N/A' : delayReasonText)}
 ${formatLine('Contact Summary', contactAttempts)}
 ${formatLine('SMS Summary', smsAttempts)}
 ${formatLine('Resolution', hashtags.join(' ') || 'N/A')}
@@ -952,7 +1007,7 @@ ${reason || 'No reason provided.'}
                 outputNoteTextarea.value = finalNote;
             });
 
-            // 6. Toggle visibility of the callback scheduler
+            // 8. Toggle visibility of the callback scheduler
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
                     callbackSchedulerContainer.classList.remove('hidden');
@@ -963,7 +1018,7 @@ ${reason || 'No reason provided.'}
                 }
             });
 
-            // 7. Handle the "Copy to Clipboard" button click
+            // 9. Handle the "Copy to Clipboard" button click
             copyButton.addEventListener('click', () => {
                 if (outputNoteTextarea.value.length === 0) return;
                 
@@ -987,7 +1042,7 @@ ${reason || 'No reason provided.'}
                 }
             });
 
-            // 8. Handle form reset
+            // 10. Handle form reset
             noteForm.addEventListener('reset', () => {
                 outputNoteTextarea.value = '';
                 mainWorkflowContainer.classList.add('hidden');
@@ -997,6 +1052,11 @@ ${reason || 'No reason provided.'}
                 callbackSchedulerContainer.classList.add('hidden');
                 customerVerifiedGroup.classList.remove('hidden');
                 step1Container.classList.remove('collapsed');
+                addSecondCodeCheckbox.checked = false;
+                secondErrorCodeContainer.classList.add('hidden');
+                delayErrorCodeInput2.value = '';
+                noDelayCheckbox.checked = false;
+                delayReasonGroup.classList.remove('hidden');
             });
         });
     </script>
