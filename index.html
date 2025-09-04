@@ -75,7 +75,7 @@
             padding-bottom: 0.5rem;
         }
 
-        /* --- Form Step Styling (No Accordion) --- */
+        /* --- Form Step Styling --- */
         .form-step h3 {
             margin-bottom: 1rem;
             font-weight: 500;
@@ -83,11 +83,35 @@
             padding: 0.5rem 0;
             border-bottom: 1px solid #eee;
         }
+
+        #step-1-container h3 {
+             cursor: pointer;
+        }
+         #step-1-container h3::after {
+            content: '−'; /* Minus sign for expanded state */
+            position: absolute;
+            right: 5px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        #step-1-container.collapsed h3::after {
+            content: '+'; /* Plus sign for collapsed state */
+        }
         
         .step-content {
             padding-top: 1rem;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding-top 0.5s ease-in-out, visibility 0s 0.5s;
         }
 
+        #step-1-container.collapsed .step-content {
+            max-height: 0;
+            padding-top: 0;
+            visibility: hidden;
+        }
+        
         .form-group {
             margin-bottom: 1.25rem;
         }
@@ -101,6 +125,7 @@
 
         input[type="text"],
         input[type="tel"],
+        select,
         textarea {
             width: 100%;
             padding: 0.75rem;
@@ -112,6 +137,7 @@
 
         input[type="text"]:focus,
         input[type="tel"]:focus,
+        select:focus,
         textarea:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -130,6 +156,18 @@
             cursor: pointer;
             margin-bottom: 0.5rem;
             font-weight: 400;
+        }
+        
+        .inline-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .inline-input-group label {
+            margin-bottom: 0;
+            white-space: nowrap;
+            font-size: 1.2rem;
+            font-weight: 500;
         }
 
         .choice-group input[type="radio"],
@@ -203,7 +241,7 @@
             border-top: none;
             border-radius: 0 0 4px 4px;
             z-index: 10;
-            max-height: 200px;
+            max-height: 120px; /* Reduced max-height further to ensure scrollbar appears */
             overflow-y: auto;
         }
         .search-result-item {
@@ -443,12 +481,19 @@
                 <!-- OFFLINE WORKFLOW CONTAINER -->
                 <div id="offline-workflow-container" class="hidden">
                     <div class="form-step">
-                        <h3>Offline: Delay Error Code</h3>
+                        <h3>Offline: Delay Details</h3>
                         <div class="step-content">
                             <div class="form-group">
                                 <label for="delay-error-code">Enter or Search for Delay Error Code</label>
                                 <input type="text" id="delay-error-code" autocomplete="off">
                                 <div id="error-code-results" class="search-results hidden"></div>
+                            </div>
+                             <div class="form-group">
+                                <label for="delay-reason">Reason for Delay</label>
+                                <select id="delay-reason">
+                                    <option value="" selected disabled>Select delay reason...</option>
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -494,7 +539,11 @@
                         <h3>Offline: Resolution Status</h3>
                         <div class="step-content">
                             <div class="form-group choice-group">
-                                <label><input type="checkbox" id="offline-resolved-number"> #Resolved & #Number</label>
+                                <label><input type="checkbox" id="offline-resolved"> #Resolved</label>
+                            </div>
+                             <div class="form-group inline-input-group">
+                                <label for="offline-number-input">#</label>
+                                <input type="text" id="offline-number-input" placeholder="Enter number...">
                             </div>
                         </div>
                     </div>
@@ -528,6 +577,36 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- DATA ---
+            const delayReasonsData = [
+                { id: 'ducting_issue', category: 'Delays', dropdownText: 'External Ducting Issue (12 Weeks)'},
+                { id: 'engineer_shortage', category: 'Delays', dropdownText: 'Engineer Shortage (4 Weeks)'},
+                { id: 'wayleave_delay', category: 'Delays', dropdownText: 'Wayleave/Permit Delay (8 Weeks)'},
+                { id: 'damaged_cabinet', category: 'Delays', dropdownText: 'Damaged Cabinet (12 Weeks)'},
+                { id: 'damaged_pole', category: 'Delays', dropdownText: 'Damaged Pole (12 Weeks)'},
+                { id: 'developer_delays', category: 'Delays', dropdownText: 'Developer Delays (3 Weeks)'},
+                { id: 'duct_cable_stock', category: 'Delays', dropdownText: 'Duct and Cable Stock (3 Weeks)'},
+                { id: 'e_d_side_fault', category: 'Delays', dropdownText: 'E-side or D-side Fault (20 Days)'},
+                { id: 'hoist_availability', category: 'Delays', dropdownText: 'Hoist Availability (3 Weeks)'},
+                { id: 'no_capacity', category: 'Delays', dropdownText: 'No Capacity Available (12 Weeks)'},
+                { id: 'planning_design', category: 'Delays', dropdownText: 'Planning and Design (30 Days)'},
+                { id: 'ptw_delay', category: 'Delays', dropdownText: 'PTW (Permission to Work) Delay'},
+                { id: 'open_exception', category: 'Delays', dropdownText: 'Open Exception (7 Days)'},
+                { id: 'routing_issue', category: 'Delays', dropdownText: 'Routing Issue (14 Days)'},
+                { id: 'survey_required', category: 'Delays', dropdownText: 'Survey Required (30 Days)'},
+                { id: 'tree_cutting', category: 'Delays', dropdownText: 'Tree Cutting (13 Weeks)'},
+            ];
+            const mockErrorDatabase = [
+                { code: 'F123', description: 'Network connection timeout' },
+                { code: 'F456', description: 'Authentication failure' },
+                { code: 'A789', description: 'Account provisioning error' },
+                { code: 'A790', description: 'Account sync issue' },
+                { code: 'B111', description: 'Billing system mismatch' },
+                { code: '101116', description: 'Openreach Provision delayed due to line plant' },
+                { code: '101084', description: 'Delay due to issues with underground network' },
+                { code: '101107', description: 'Sent to Survey, await response from Openreach' }
+            ];
 
             // --- Element Selectors ---
             const noteForm = document.getElementById('note-form');
@@ -535,6 +614,7 @@
             const copyButton = document.getElementById('copy-button');
             
             // Step containers and paths
+            const step1Container = document.getElementById('step-1-container');
             const businessAreaRadios = document.querySelectorAll('input[name="business-area"]');
             const mainWorkflowContainer = document.getElementById('main-workflow-container');
             const offlineWorkflowContainer = document.getElementById('offline-workflow-container');
@@ -551,9 +631,11 @@
             
             // Offline workflow selectors
             const delayErrorCodeInput = document.getElementById('delay-error-code');
+            const delayReasonSelect = document.getElementById('delay-reason');
             const errorCodeResultsContainer = document.getElementById('error-code-results');
             const additionalInfoInput = document.getElementById('additional-info');
-            const offlineResolvedNumberCheckbox = document.getElementById('offline-resolved-number');
+            const offlineResolvedCheckbox = document.getElementById('offline-resolved');
+            const offlineNumberInput = document.getElementById('offline-number-input');
             const customerAnsweredRadios = document.querySelectorAll('input[name="customer-answered"]');
             const customerVerifiedGroup = document.getElementById('customer-verified-group');
 
@@ -569,15 +651,18 @@
             const prevMonthBtn = document.getElementById('prev-month-btn');
             const nextMonthBtn = document.getElementById('next-month-btn');
 
-            // --- Mock Database for Error Codes (Placeholder) ---
-            const mockErrorDatabase = [
-                { code: 'F123', description: 'Network connection timeout' },
-                { code: 'F456', description: 'Authentication failure' },
-                { code: 'A789', description: 'Account provisioning error' },
-                { code: 'A790', description: 'Account sync issue' },
-                { code: 'B111', description: 'Billing system mismatch' }
-            ];
             
+            // --- INITIALIZATION ---
+            
+            // Populate delay reasons dropdown
+            delayReasonsData.forEach(reason => {
+                const option = document.createElement('option');
+                option.value = reason.id;
+                option.textContent = reason.dropdownText;
+                delayReasonSelect.appendChild(option);
+            });
+            
+
             // --- Calendar Logic ---
             let currentDate = new Date();
             let currentYear = currentDate.getFullYear();
@@ -705,23 +790,31 @@
             });
 
 
-            // --- Event Listeners ---
+            // --- EVENT LISTENERS ---
 
-            // 1. Listen for changes on business area to show the correct workflow
+            // 1. Business area selection
             businessAreaRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     const selectedValue = event.target.value;
                     if (selectedValue === 'Offline') {
                         mainWorkflowContainer.classList.add('hidden');
                         offlineWorkflowContainer.classList.remove('hidden');
+                        step1Container.classList.add('collapsed');
                     } else {
                         mainWorkflowContainer.classList.remove('hidden');
                         offlineWorkflowContainer.classList.add('hidden');
+                        step1Container.classList.remove('collapsed');
                     }
                 });
             });
 
-            // 2. Listen for changes on the validation radio buttons (standard workflow)
+            // 2. Expand/collapse Step 1
+            step1Container.querySelector('h3').addEventListener('click', () => {
+                step1Container.classList.toggle('collapsed');
+            });
+
+
+            // 3. Validation radio buttons (standard workflow)
             validationRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     if (event.target.value === 'yes') {
@@ -734,7 +827,7 @@
                 });
             });
 
-            // 3. Conditional logic for Customer Verified section (Offline Workflow)
+            // 4. Conditional logic for Customer Verified section (Offline Workflow)
             customerAnsweredRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     if (event.target.value === 'No') {
@@ -745,7 +838,8 @@
                 });
             });
 
-            // 4. Handle form submission to generate the note
+
+            // 5. Handle form submission
             noteForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
@@ -756,6 +850,7 @@
 
                 if (selectedArea === 'Offline') {
                     const delayErrorCode = delayErrorCodeInput.value.trim();
+                    const delayReason = delayReasonSelect.options[delayReasonSelect.selectedIndex].text;
                     const preTextSent = document.querySelector('input[name="pre-text-sent"]:checked')?.value || 'N/A';
                     const customerAnswered = document.querySelector('input[name="customer-answered"]:checked')?.value || 'N/A';
                     let customerVerified = document.querySelector('input[name="customer-verified"]:checked')?.value || 'N/A';
@@ -766,12 +861,16 @@
                     
                     const postTextSent = document.querySelector('input[name="post-text-sent"]:checked')?.value || 'N/A';
                     
-                    const isResolvedAndNumber = offlineResolvedNumberCheckbox.checked;
+                    const isResolved = offlineResolvedCheckbox.checked;
+                    const numberValue = offlineNumberInput.value.trim();
                     const additionalInfo = additionalInfoInput.value.trim();
 
                     let hashtags = [];
-                    if (isResolvedAndNumber) {
-                        hashtags.push('#Resolved #Number');
+                    if (isResolved) {
+                        hashtags.push('#Resolved');
+                    }
+                    if (numberValue) {
+                        hashtags.push(`#${numberValue}`);
                     }
                     
                     const contactAttempts = `Answered: ${customerAnswered} | Verified: ${customerVerified}`;
@@ -781,9 +880,10 @@
 ---[ OFFLINE WORKFLOW ]----------------------------------
 ${formatLine('Business Area', 'Offline')}
 ${formatLine('Delay Error Code', delayErrorCode)}
+${formatLine('Delay Reason', delayReason.includes('Select') ? 'N/A' : delayReason)}
 ${formatLine('Contact Summary', contactAttempts)}
 ${formatLine('SMS Summary', smsAttempts)}
-${formatLine('Resolution', hashtags.join('') || 'N/A')}
+${formatLine('Resolution', hashtags.join(' ') || 'N/A')}
 
 ---[ ADDITIONAL INFO ]-----------------------------------
 
@@ -852,7 +952,7 @@ ${reason || 'No reason provided.'}
                 outputNoteTextarea.value = finalNote;
             });
 
-            // 5. Toggle visibility of the callback scheduler
+            // 6. Toggle visibility of the callback scheduler
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
                     callbackSchedulerContainer.classList.remove('hidden');
@@ -863,7 +963,7 @@ ${reason || 'No reason provided.'}
                 }
             });
 
-            // 6. Handle the "Copy to Clipboard" button click
+            // 7. Handle the "Copy to Clipboard" button click
             copyButton.addEventListener('click', () => {
                 if (outputNoteTextarea.value.length === 0) return;
                 
@@ -887,7 +987,7 @@ ${reason || 'No reason provided.'}
                 }
             });
 
-            // 7. Handle form reset to clear output and hide conditional steps
+            // 8. Handle form reset
             noteForm.addEventListener('reset', () => {
                 outputNoteTextarea.value = '';
                 mainWorkflowContainer.classList.add('hidden');
@@ -895,7 +995,8 @@ ${reason || 'No reason provided.'}
                 validationYesPath.classList.add('hidden');
                 validationNoPath.classList.add('hidden');
                 callbackSchedulerContainer.classList.add('hidden');
-                customerVerifiedGroup.classList.remove('hidden'); // Also reset this on form clear
+                customerVerifiedGroup.classList.remove('hidden');
+                step1Container.classList.remove('collapsed');
             });
         });
     </script>
