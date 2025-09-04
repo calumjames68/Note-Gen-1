@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteGen - Quick Note Templater</title>
+    <!-- Google Fonts for a clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Global Styles & Variables --- */
+        :root {
+            --primary-color: #007bff; /* A vibrant blue */
+            --bt-purple: #50237F;     /* BT Purple */
+            --secondary-color: #6c757d;
+            --background-color: #f4f7f6;
+            --container-bg-color: #ffffff;
+            --text-color: #333;
+            --border-color: #ccc;
+            --focus-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- Header --- */
+        header {
+            background: linear-gradient(90deg, var(--bt-purple) 40%, var(--primary-color) 60%);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr; /* Single column by default for mobile */
+            gap: 2rem;
+            padding: 0 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Two-column layout for wider screens */
+        @media (min-width: 992px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* --- Section Styling --- */
+        .form-section, .output-section {
+            background-color: var(--container-bg-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            color: var(--bt-purple);
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* --- Form Elements --- */
+        .form-step h3 {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label,
+        fieldset legend {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="tel"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: var(--focus-shadow);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* --- Checkbox & Radio Styling --- */
+        .choice-group label {
+             display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .choice-group input[type="radio"],
+        .checkbox-group input[type="checkbox"],
+        .callback-label input[type="checkbox"] {
+            margin-right: 0.75rem;
+            height: 1.1em;
+            width: 1.1em;
+        }
+        
+        .checkbox-group label,
+        .callback-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+
+        /* --- Button Styling --- */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker shade of the blue */
+        }
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--text-color);
+            border: 1px solid #ced4da;
+        }
+        .btn-secondary:hover {
+            background-color: #d8dde2;
+        }
+
+
+        /* --- Output Section --- */
+        #output-note {
+            width: 100%;
+            height: 300px;
+            padding: 0.75rem;
+            font-family: monospace;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            margin-bottom: 1rem;
+            white-space: pre-wrap; /* Ensures text wraps correctly */
+        }
+
+        /* Utility class for hiding elements */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>NoteGen - Quick Note Templater</h1>
+    </header>
+
+    <main class="main-container">
+
+        <!-- Input Form Section -->
+        <section class="form-section">
+            <form id="note-form" novalidate>
+                
+                <!-- STEP 1: VALIDATION -->
+                <div id="step-1-container" class="form-step">
+                    <h3>Step 1: Have you validated the customer?</h3>
+                    <div class="form-group choice-group">
+                        <label><input type="radio" name="validation" value="yes" id="validate-yes"> Yes</label>
+                        <label><input type="radio" name="validation" value="no" id="validate-no"> No</label>
+                    </div>
+                </div>
+
+                <!-- PATH FOR FAILED VALIDATION -->
+                <div id="validation-no-path" class="form-step hidden">
+                    <div class="form-group">
+                        <label for="validation-fail-reason">Why was validation not completed?</label>
+                        <textarea id="validation-fail-reason" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- PATH FOR SUCCESSFUL VALIDATION (STEPS 2-4) -->
+                <div id="validation-yes-path" class="hidden">
+                    <!-- STEP 2: CUSTOMER DETAILS & ISSUE -->
+                    <div id="step-2-container" class="form-step">
+                        <h3>Step 2: Customer Details & Issue Summary</h3>
+                        <div class="form-group">
+                            <label for="cust-name">Customer Name</label>
+                            <input type="text" id="cust-name" name="cust-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="account-number">Account Number</label>
+                            <input type="text" id="account-number" name="account-number">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone-number">Phone Number</label>
+                            <input type="tel" id="phone-number" name="phone-number">
+                        </div>
+                        <div class="form-group">
+                            <label for="issue-summary">Issue Summary</label>
+                            <textarea id="issue-summary" name="issue-summary" rows="5"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: ACTIONS TAKEN -->
+                    <div id="step-3-container" class="form-step">
+                        <h3>Step 3: Actions Taken</h3>
+                        <fieldset class="form-group">
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="action" value="Checked Security Questions"> Checked Security Questions</label>
+                                <label><input type="checkbox" name="action" value="Updated Account Details"> Updated Account Details</label>
+                                <label><input type="checkbox" name="action" value="Provided Troubleshooting Steps"> Provided Troubleshooting Steps</label>
+                                <label><input type="checkbox" name="action" value="Explained Next Steps"> Explained Next Steps</label>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- STEP 4: OUTCOME -->
+                    <div id="step-4-container" class="form-step">
+                        <h3>Step 4: Outcome & Next Steps</h3>
+                        <div class="form-group">
+                            <label class="callback-label"><input type="checkbox" id="callback-booked"> Callback Booked?</label>
+                        </div>
+                        <div class="form-group hidden" id="callback-details-container">
+                            <label for="callback-details">Callback Date/Time</label>
+                            <input type="text" id="callback-details" name="callback-details">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Generate Note</button>
+                    <button type="reset" class="btn-secondary">Clear Form</button>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- Output Section -->
+        <section class="output-section">
+            <h2>Generated Note</h2>
+            <textarea id="output-note" readonly placeholder="Your generated note will appear here..."></textarea>
+            <button id="copy-button" class="btn-secondary">Copy to Clipboard</button>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Element Selectors ---
+            const noteForm = document.getElementById('note-form');
+            const outputNoteTextarea = document.getElementById('output-note');
+            const copyButton = document.getElementById('copy-button');
+            
+            // Step containers and paths
+            const validationYesPath = document.getElementById('validation-yes-path');
+            const validationNoPath = document.getElementById('validation-no-path');
+            const validationRadios = document.querySelectorAll('input[name="validation"]');
+
+            // Form field selectors
+            const custNameInput = document.getElementById('cust-name');
+            const accountNumberInput = document.getElementById('account-number');
+            const phoneNumberInput = document.getElementById('phone-number');
+            const issueSummaryInput = document.getElementById('issue-summary');
+            const validationFailReasonInput = document.getElementById('validation-fail-reason');
+            
+            // Callback selectors
+            const callbackBookedCheckbox = document.getElementById('callback-booked');
+            const callbackDetailsContainer = document.getElementById('callback-details-container');
+            const callbackDetailsInput = document.getElementById('callback-details');
+
+            // --- Event Listeners ---
+
+            // 1. Listen for changes on the validation radio buttons to show the correct path
+            validationRadios.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    if (event.target.value === 'yes') {
+                        validationYesPath.classList.remove('hidden');
+                        validationNoPath.classList.add('hidden');
+                    } else {
+                        validationNoPath.classList.remove('hidden');
+                        validationYesPath.classList.add('hidden');
+                    }
+                });
+            });
+
+            // 2. Handle form submission to generate the note
+            noteForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const validateYes = document.getElementById('validate-yes').checked;
+                let finalNote = '';
+
+                if (validateYes) {
+                    // --- GENERATE NOTE FOR SUCCESSFUL VALIDATION ---
+                    const customerName = custNameInput.value.trim();
+                    const accountNumber = accountNumberInput.value.trim();
+                    const phoneNumber = phoneNumberInput.value.trim();
+                    const issueSummary = issueSummaryInput.value.trim();
+
+                    const checkedActions = document.querySelectorAll('input[name="action"]:checked');
+                    let actionsText = '';
+                    if (checkedActions.length > 0) {
+                        actionsText = '\n- - - Actions Taken - - -\n';
+                        checkedActions.forEach(checkbox => {
+                            actionsText += `• ${checkbox.value}\n`;
+                        });
+                    }
+
+                    const callbackBooked = callbackBookedCheckbox.checked;
+                    const callbackStatus = callbackBooked ? 'Yes' : 'No';
+                    const callbackDetails = callbackBooked ? callbackDetailsInput.value.trim() : 'N/A';
+
+                    finalNote = `
+- - - Customer & Account Details - - -
+Customer Name: ${customerName || 'N/A'}
+Account Number: ${accountNumber || 'N/A'}
+Phone Number: ${phoneNumber || 'N/A'}
+
+- - - Issue Summary - - -
+${issueSummary || 'N/A'}
+${actionsText}
+- - - Outcome & Next Steps - - -
+Callback Booked: ${callbackStatus}
+Callback Details: ${callbackDetails}
+`.trim();
+                } else {
+                    // --- GENERATE NOTE FOR FAILED VALIDATION ---
+                    const reason = validationFailReasonInput.value.trim();
+                    finalNote = `
+- - - Validation Not Completed - - -
+Customer validation was not completed.
+
+Reason:
+${reason || 'No reason provided.'}
+`.trim();
+                }
+                
+                outputNoteTextarea.value = finalNote;
+            });
+
+            // 3. Toggle visibility of the callback details input field
+            callbackBookedCheckbox.addEventListener('change', () => {
+                if (callbackBookedCheckbox.checked) {
+                    callbackDetailsContainer.classList.remove('hidden');
+                } else {
+                    callbackDetailsContainer.classList.add('hidden');
+                    callbackDetailsInput.value = '';
+                }
+            });
+
+            // 4. Handle the "Copy to Clipboard" button click
+            copyButton.addEventListener('click', () => {
+                if (outputNoteTextarea.value.length === 0) return;
+                
+                const provideCopyFeedback = () => {
+                    const originalText = copyButton.textContent;
+                    copyButton.textContent = 'Copied!';
+                    copyButton.disabled = true;
+                    setTimeout(() => {
+                        copyButton.textContent = originalText;
+                        copyButton.disabled = false;
+                    }, 2000);
+                };
+
+                navigator.clipboard.writeText(outputNoteTextarea.value).then(provideCopyFeedback).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    // Basic fallback for older browsers
+                    try {
+                        outputNoteTextarea.select();
+                        document.execCommand('copy');
+                        provideCopyFeedback();
+                    } catch (e) {
+                         alert('Could not copy text to clipboard.');
+                    }
+                });
+            });
+
+            // 5. Handle form reset to clear output and hide conditional steps
+            noteForm.addEventListener('reset', () => {
+                outputNoteTextarea.value = '';
+                validationYesPath.classList.add('hidden');
+                validationNoPath.classList.add('hidden');
+                callbackDetailsContainer.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
+
