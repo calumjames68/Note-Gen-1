@@ -75,11 +75,40 @@
             padding-bottom: 0.5rem;
         }
 
-        /* --- Form Elements --- */
+        /* --- Accordion Form Step Styling --- */
         .form-step h3 {
-            margin-bottom: 1rem;
+            margin-bottom: 0; /* Adjusted for accordion */
             font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            padding: 0.5rem 0;
         }
+
+        .form-step h3::after {
+            content: '−'; /* Minus sign for expanded state */
+            position: absolute;
+            right: 5px;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .form-step.collapsed h3::after {
+            content: '+'; /* Plus sign for collapsed state */
+        }
+        
+        .step-content {
+            max-height: 1000px; /* Large enough to show all content */
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding-top 0.5s ease-in-out;
+            padding-top: 1rem; /* Space between header and content */
+        }
+        
+        .form-step.collapsed .step-content {
+            max-height: 0;
+            padding-top: 0;
+        }
+
 
         .form-group {
             margin-bottom: 1.25rem;
@@ -214,68 +243,95 @@
         <section class="form-section">
             <form id="note-form" novalidate>
                 
-                <!-- STEP 1: VALIDATION -->
+                <!-- STEP 1: BUSINESS AREA -->
                 <div id="step-1-container" class="form-step">
-                    <h3>Step 1: Have you validated the customer?</h3>
-                    <div class="form-group choice-group">
-                        <label><input type="radio" name="validation" value="yes" id="validate-yes"> Yes</label>
-                        <label><input type="radio" name="validation" value="no" id="validate-no"> No</label>
+                    <h3>Step 1: Select your business area</h3>
+                    <div class="step-content">
+                        <div class="form-group choice-group">
+                            <label><input type="radio" name="business-area" value="Connections"> Connections</label>
+                            <label><input type="radio" name="business-area" value="Offline"> Offline</label>
+                            <label><input type="radio" name="business-area" value="DI"> DI</label>
+                            <label><input type="radio" name="business-area" value="Callbacks"> Callbacks</label>
+                        </div>
                     </div>
                 </div>
 
-                <!-- PATH FOR FAILED VALIDATION -->
-                <div id="validation-no-path" class="form-step hidden">
-                    <div class="form-group">
-                        <label for="validation-fail-reason">Why was validation not completed?</label>
-                        <textarea id="validation-fail-reason" rows="4"></textarea>
-                    </div>
-                </div>
-
-                <!-- PATH FOR SUCCESSFUL VALIDATION (STEPS 2-4) -->
-                <div id="validation-yes-path" class="hidden">
-                    <!-- STEP 2: CUSTOMER DETAILS & ISSUE -->
+                <!-- This container holds the rest of the workflow, hidden initially -->
+                <div id="main-workflow-container" class="hidden">
+                    <!-- STEP 2: VALIDATION -->
                     <div id="step-2-container" class="form-step">
-                        <h3>Step 2: Customer Details & Issue Summary</h3>
-                        <div class="form-group">
-                            <label for="cust-name">Customer Name</label>
-                            <input type="text" id="cust-name" name="cust-name">
-                        </div>
-                        <div class="form-group">
-                            <label for="account-number">Account Number</label>
-                            <input type="text" id="account-number" name="account-number">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone-number">Phone Number</label>
-                            <input type="tel" id="phone-number" name="phone-number">
-                        </div>
-                        <div class="form-group">
-                            <label for="issue-summary">Issue Summary</label>
-                            <textarea id="issue-summary" name="issue-summary" rows="5"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- STEP 3: ACTIONS TAKEN -->
-                    <div id="step-3-container" class="form-step">
-                        <h3>Step 3: Actions Taken</h3>
-                        <fieldset class="form-group">
-                            <div class="checkbox-group">
-                                <label><input type="checkbox" name="action" value="Checked Security Questions"> Checked Security Questions</label>
-                                <label><input type="checkbox" name="action" value="Updated Account Details"> Updated Account Details</label>
-                                <label><input type="checkbox" name="action" value="Provided Troubleshooting Steps"> Provided Troubleshooting Steps</label>
-                                <label><input type="checkbox" name="action" value="Explained Next Steps"> Explained Next Steps</label>
+                        <h3>Step 2: Have you validated the customer?</h3>
+                        <div class="step-content">
+                            <div class="form-group choice-group">
+                                <label><input type="radio" name="validation" value="yes" id="validate-yes"> Yes</label>
+                                <label><input type="radio" name="validation" value="no" id="validate-no"> No</label>
                             </div>
-                        </fieldset>
+                        </div>
                     </div>
 
-                    <!-- STEP 4: OUTCOME -->
-                    <div id="step-4-container" class="form-step">
-                        <h3>Step 4: Outcome & Next Steps</h3>
-                        <div class="form-group">
-                            <label class="callback-label"><input type="checkbox" id="callback-booked"> Callback Booked?</label>
+                    <!-- PATH FOR FAILED VALIDATION -->
+                    <div id="validation-no-path" class="form-step hidden">
+                        <h3>Step 3: Reason for Failure</h3>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label for="validation-fail-reason">Why was validation not completed?</label>
+                                <textarea id="validation-fail-reason" rows="4"></textarea>
+                            </div>
                         </div>
-                        <div class="form-group hidden" id="callback-details-container">
-                            <label for="callback-details">Callback Date/Time</label>
-                            <input type="text" id="callback-details" name="callback-details">
+                    </div>
+
+                    <!-- PATH FOR SUCCESSFUL VALIDATION (STEPS 3-5) -->
+                    <div id="validation-yes-path" class="hidden">
+                        <!-- STEP 3: CUSTOMER DETAILS & ISSUE -->
+                        <div id="step-3-container" class="form-step">
+                            <h3>Step 3: Customer Details & Issue Summary</h3>
+                            <div class="step-content">
+                                <div class="form-group">
+                                    <label for="cust-name">Customer Name</label>
+                                    <input type="text" id="cust-name" name="cust-name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="account-number">Account Number</label>
+                                    <input type="text" id="account-number" name="account-number">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone-number">Phone Number</label>
+                                    <input type="tel" id="phone-number" name="phone-number">
+                                </div>
+                                <div class="form-group">
+                                    <label for="issue-summary">Issue Summary</label>
+                                    <textarea id="issue-summary" name="issue-summary" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: ACTIONS TAKEN -->
+                        <div id="step-4-container" class="form-step">
+                            <h3>Step 4: Actions Taken</h3>
+                            <div class="step-content">
+                                <fieldset class="form-group">
+                                    <div class="checkbox-group">
+                                        <label><input type="checkbox" name="action" value="Checked Security Questions"> Checked Security Questions</label>
+                                        <label><input type="checkbox" name="action" value="Updated Account Details"> Updated Account Details</label>
+                                        <label><input type="checkbox" name="action" value="Provided Troubleshooting Steps"> Provided Troubleshooting Steps</label>
+                                        <label><input type="checkbox" name="action" value="Explained Next Steps"> Explained Next Steps</label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+                        <!-- STEP 5: OUTCOME -->
+                        <div id="step-5-container" class="form-step">
+                            <h3>Step 5: Outcome & Next Steps</h3>
+                            <div class="step-content">
+                                <div class="form-group">
+                                    <label class="callback-label"><input type="checkbox" id="callback-booked"> Callback Booked?</label>
+                                </div>
+                                <div class="form-group hidden" id="callback-details-container">
+                                    <label for="callback-details">Callback Date/Time</label>
+                                    <input type="text" id="callback-details" name="callback-details">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -306,6 +362,9 @@
             const copyButton = document.getElementById('copy-button');
             
             // Step containers and paths
+            const allFormSteps = document.querySelectorAll('.form-step');
+            const businessAreaRadios = document.querySelectorAll('input[name="business-area"]');
+            const mainWorkflowContainer = document.getElementById('main-workflow-container');
             const validationYesPath = document.getElementById('validation-yes-path');
             const validationNoPath = document.getElementById('validation-no-path');
             const validationRadios = document.querySelectorAll('input[name="validation"]');
@@ -322,25 +381,69 @@
             const callbackDetailsContainer = document.getElementById('callback-details-container');
             const callbackDetailsInput = document.getElementById('callback-details');
 
+            // --- Accordion Logic ---
+
+            const setActiveStep = (stepToActivate) => {
+                 allFormSteps.forEach(step => {
+                    // Only collapse steps that are currently visible
+                    if (step !== stepToActivate && !step.parentElement.classList.contains('hidden')) {
+                        step.classList.add('collapsed');
+                    }
+                });
+                if (stepToActivate) {
+                    stepToActivate.classList.remove('collapsed');
+                }
+            };
+
+            allFormSteps.forEach(step => {
+                const header = step.querySelector('h3');
+                if(header) {
+                    header.addEventListener('click', () => {
+                        // Toggle the clicked step if it's already active, otherwise activate it
+                         if (step.classList.contains('collapsed')) {
+                            setActiveStep(step);
+                         }
+                    });
+                }
+            });
+
+             // Initialize: Collapse all steps except the first one
+            allFormSteps.forEach(step => {
+                if(step.id !== 'step-1-container') {
+                    step.classList.add('collapsed');
+                }
+            });
+
             // --- Event Listeners ---
 
-            // 1. Listen for changes on the validation radio buttons to show the correct path
+            // 1. Listen for changes on business area to show the main workflow
+            businessAreaRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    mainWorkflowContainer.classList.remove('hidden');
+                    setActiveStep(document.getElementById('step-2-container'));
+                });
+            });
+
+            // 2. Listen for changes on the validation radio buttons to show the correct path
             validationRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     if (event.target.value === 'yes') {
                         validationYesPath.classList.remove('hidden');
                         validationNoPath.classList.add('hidden');
+                        setActiveStep(document.getElementById('step-3-container'));
                     } else {
                         validationNoPath.classList.remove('hidden');
                         validationYesPath.classList.add('hidden');
+                        setActiveStep(document.getElementById('validation-no-path'));
                     }
                 });
             });
 
-            // 2. Handle form submission to generate the note
+            // 3. Handle form submission to generate the note
             noteForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
+                const selectedArea = document.querySelector('input[name="business-area"]:checked')?.value;
                 const validateYes = document.getElementById('validate-yes').checked;
                 let finalNote = '';
 
@@ -365,6 +468,9 @@
                     const callbackDetails = callbackBooked ? callbackDetailsInput.value.trim() : 'N/A';
 
                     finalNote = `
+- - - Call Details - - -
+Business Area: ${selectedArea || 'N/A'}
+
 - - - Customer & Account Details - - -
 Customer Name: ${customerName || 'N/A'}
 Account Number: ${accountNumber || 'N/A'}
@@ -378,9 +484,12 @@ Callback Booked: ${callbackStatus}
 Callback Details: ${callbackDetails}
 `.trim();
                 } else {
-                    // --- GENERATE NOTE FOR FAILED VALIDATION ---
+                    // --- GENERATE NOTE FOR FAILED VALIDATION (OR if no validation choice made) ---
                     const reason = validationFailReasonInput.value.trim();
                     finalNote = `
+- - - Call Details - - -
+Business Area: ${selectedArea || 'N/A'}
+
 - - - Validation Not Completed - - -
 Customer validation was not completed.
 
@@ -392,7 +501,7 @@ ${reason || 'No reason provided.'}
                 outputNoteTextarea.value = finalNote;
             });
 
-            // 3. Toggle visibility of the callback details input field
+            // 4. Toggle visibility of the callback details input field
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
                     callbackDetailsContainer.classList.remove('hidden');
@@ -402,7 +511,7 @@ ${reason || 'No reason provided.'}
                 }
             });
 
-            // 4. Handle the "Copy to Clipboard" button click
+            // 5. Handle the "Copy to Clipboard" button click
             copyButton.addEventListener('click', () => {
                 if (outputNoteTextarea.value.length === 0) return;
                 
@@ -429,17 +538,19 @@ ${reason || 'No reason provided.'}
                 });
             });
 
-            // 5. Handle form reset to clear output and hide conditional steps
+            // 6. Handle form reset to clear output and hide conditional steps
             noteForm.addEventListener('reset', () => {
                 outputNoteTextarea.value = '';
+                mainWorkflowContainer.classList.add('hidden');
                 validationYesPath.classList.add('hidden');
                 validationNoPath.classList.add('hidden');
                 callbackDetailsContainer.classList.add('hidden');
+                 // Reset accordion state
+                allFormSteps.forEach(step => step.classList.add('collapsed'));
+                document.getElementById('step-1-container').classList.remove('collapsed');
             });
         });
     </script>
 </body>
 </html>
-
-
 
