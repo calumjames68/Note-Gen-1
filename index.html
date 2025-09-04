@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoteGen - Quick Note Templater</title>
+    <title>NoteTemplate BTGroup</title>
     <!-- Google Fonts for a clean look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,40 +75,18 @@
             padding-bottom: 0.5rem;
         }
 
-        /* --- Accordion Form Step Styling --- */
+        /* --- Form Step Styling (No Accordion) --- */
         .form-step h3 {
-            margin-bottom: 0; /* Adjusted for accordion */
+            margin-bottom: 1rem;
             font-weight: 500;
-            cursor: pointer;
             position: relative;
             padding: 0.5rem 0;
-        }
-
-        .form-step h3::after {
-            content: '−'; /* Minus sign for expanded state */
-            position: absolute;
-            right: 5px;
-            font-size: 1.5em;
-            font-weight: bold;
-            transition: transform 0.3s ease;
-        }
-
-        .form-step.collapsed h3::after {
-            content: '+'; /* Plus sign for collapsed state */
+            border-bottom: 1px solid #eee;
         }
         
         .step-content {
-            max-height: 1000px; /* Large enough to show all content */
-            overflow: hidden;
-            transition: max-height 0.5s ease-in-out, padding-top 0.5s ease-in-out;
-            padding-top: 1rem; /* Space between header and content */
+            padding-top: 1rem;
         }
-        
-        .form-step.collapsed .step-content {
-            max-height: 0;
-            padding-top: 0;
-        }
-
 
         .form-group {
             margin-bottom: 1.25rem;
@@ -155,6 +133,7 @@
         }
 
         .choice-group input[type="radio"],
+        .choice-group input[type="checkbox"],
         .checkbox-group input[type="checkbox"],
         .callback-label input[type="checkbox"] {
             margin-right: 0.75rem;
@@ -210,12 +189,132 @@
             background-color: #d8dde2;
         }
 
+        /* --- Search Results Styling --- */
+        .form-group {
+            position: relative; /* Needed for positioning the search results */
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            z-index: 10;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .search-result-item {
+            padding: 0.75rem;
+            cursor: pointer;
+        }
+        .search-result-item:hover {
+            background-color: #f1f1f1;
+        }
+        .search-result-item strong {
+            color: var(--bt-purple);
+        }
+
+        /* --- Condensed Contact Attempts --- */
+        .contact-attempts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+        .contact-attempts-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        /* --- Callback Scheduler Styling --- */
+        #calendar-container {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        #calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+        }
+        #month-year-display {
+            font-weight: 500;
+        }
+        #calendar-header button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 0.5rem;
+        }
+        #calendar-weekdays, #calendar-body {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+        }
+        #calendar-weekdays .weekday {
+            font-weight: 500;
+            font-size: 0.8rem;
+            padding: 0.25rem 0;
+        }
+        #calendar-body .date-cell {
+            padding: 0.5rem 0;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+        #calendar-body .date-cell:hover:not(.other-month) {
+            background-color: #e9ecef;
+        }
+        #calendar-body .date-cell.other-month {
+            color: #ccc;
+            cursor: default;
+        }
+        #calendar-body .date-cell.today::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--bt-purple);
+        }
+        #calendar-body .date-cell.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        #callback-times-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 0.5rem;
+        }
+        .time-slot-button {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .time-slot-button.active {
+            background-color: var(--bt-purple);
+            color: white;
+            border-color: var(--bt-purple);
+        }
+
 
         /* --- Output Section --- */
         #output-note {
             width: 100%;
-            height: 300px;
-            padding: 0.75rem;
+            height: 400px; /* Increased height */
+            padding: 1rem;
             font-family: monospace;
             font-size: 0.95rem;
             border: 1px solid var(--border-color);
@@ -223,6 +322,7 @@
             background-color: #f8f9fa;
             margin-bottom: 1rem;
             white-space: pre-wrap; /* Ensures text wraps correctly */
+            line-height: 1.4;
         }
 
         /* Utility class for hiding elements */
@@ -234,7 +334,7 @@
 <body>
 
     <header>
-        <h1>NoteGen - Quick Note Templater</h1>
+        <h1>NoteTemplate BTGroup</h1>
     </header>
 
     <main class="main-container">
@@ -256,7 +356,7 @@
                     </div>
                 </div>
 
-                <!-- This container holds the rest of the workflow, hidden initially -->
+                <!-- STANDARD WORKFLOW CONTAINER -->
                 <div id="main-workflow-container" class="hidden">
                     <!-- STEP 2: VALIDATION -->
                     <div id="step-2-container" class="form-step">
@@ -268,8 +368,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- PATH FOR FAILED VALIDATION -->
+                    <!-- ... (rest of standard workflow) ... -->
                     <div id="validation-no-path" class="form-step hidden">
                         <h3>Step 3: Reason for Failure</h3>
                         <div class="step-content">
@@ -279,10 +378,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- PATH FOR SUCCESSFUL VALIDATION (STEPS 3-5) -->
                     <div id="validation-yes-path" class="hidden">
-                        <!-- STEP 3: CUSTOMER DETAILS & ISSUE -->
                         <div id="step-3-container" class="form-step">
                             <h3>Step 3: Customer Details & Issue Summary</h3>
                             <div class="step-content">
@@ -304,8 +400,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- STEP 4: ACTIONS TAKEN -->
                         <div id="step-4-container" class="form-step">
                             <h3>Step 4: Actions Taken</h3>
                             <div class="step-content">
@@ -319,18 +413,97 @@
                                 </fieldset>
                             </div>
                         </div>
-
-                        <!-- STEP 5: OUTCOME -->
                         <div id="step-5-container" class="form-step">
                             <h3>Step 5: Outcome & Next Steps</h3>
                             <div class="step-content">
                                 <div class="form-group">
                                     <label class="callback-label"><input type="checkbox" id="callback-booked"> Callback Booked?</label>
                                 </div>
-                                <div class="form-group hidden" id="callback-details-container">
-                                    <label for="callback-details">Callback Date/Time</label>
-                                    <input type="text" id="callback-details" name="callback-details">
+                                <div class="form-group hidden" id="callback-scheduler-container">
+                                    <label>Select Callback Date & Time</label>
+                                    <div id="calendar-container">
+                                        <div id="calendar-header">
+                                            <button type="button" id="prev-month-btn">&lt;</button>
+                                            <span id="month-year-display"></span>
+                                            <button type="button" id="next-month-btn">&gt;</button>
+                                        </div>
+                                        <div id="calendar-weekdays">
+                                            <div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div><div class="weekday">Sun</div>
+                                        </div>
+                                        <div id="calendar-body"></div>
+                                    </div>
+                                    <div id="callback-times-container"></div>
+                                    <input type="hidden" id="callback-details" name="callback-details">
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OFFLINE WORKFLOW CONTAINER -->
+                <div id="offline-workflow-container" class="hidden">
+                    <div class="form-step">
+                        <h3>Offline: Delay Error Code</h3>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label for="delay-error-code">Enter or Search for Delay Error Code</label>
+                                <input type="text" id="delay-error-code" autocomplete="off">
+                                <div id="error-code-results" class="search-results hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-step">
+                        <h3>Offline: Customer Contact</h3>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label>Customer Answered?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="customer-answered" value="Yes"> Yes</label>
+                                    <label><input type="radio" name="customer-answered" value="No"> No</label>
+                                </div>
+                            </div>
+                            <div class="form-group" id="customer-verified-group">
+                                <label>Customer Verified?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="customer-verified" value="Yes"> Yes</label>
+                                    <label><input type="radio" name="customer-verified" value="No"> No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-step">
+                        <h3>Offline: Contact Attempts (SMS)</h3>
+                        <div class="step-content contact-attempts-grid">
+                            <div class="form-group">
+                                <label>Pre Text Sent?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="pre-text-sent" value="Yes"> Yes</label>
+                                    <label><input type="radio" name="pre-text-sent" value="No"> No</label>
+                                </div>
+                            </div>
+                             <div class="form-group">
+                                <label>Post Text Sent?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="post-text-sent" value="Yes"> Yes</label>
+                                    <label><input type="radio" name="post-text-sent" value="No"> No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-step">
+                        <h3>Offline: Resolution Status</h3>
+                        <div class="step-content">
+                            <div class="form-group choice-group">
+                                <label><input type="checkbox" id="offline-resolved-number"> #Resolved & #Number</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-step">
+                        <h3>Offline: Additional Info</h3>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label for="additional-info">Enter any additional info</label>
+                                <textarea id="additional-info" rows="4"></textarea>
                             </div>
                         </div>
                     </div>
@@ -362,9 +535,9 @@
             const copyButton = document.getElementById('copy-button');
             
             // Step containers and paths
-            const allFormSteps = document.querySelectorAll('.form-step');
             const businessAreaRadios = document.querySelectorAll('input[name="business-area"]');
             const mainWorkflowContainer = document.getElementById('main-workflow-container');
+            const offlineWorkflowContainer = document.getElementById('offline-workflow-container');
             const validationYesPath = document.getElementById('validation-yes-path');
             const validationNoPath = document.getElementById('validation-no-path');
             const validationRadios = document.querySelectorAll('input[name="validation"]');
@@ -376,142 +549,321 @@
             const issueSummaryInput = document.getElementById('issue-summary');
             const validationFailReasonInput = document.getElementById('validation-fail-reason');
             
+            // Offline workflow selectors
+            const delayErrorCodeInput = document.getElementById('delay-error-code');
+            const errorCodeResultsContainer = document.getElementById('error-code-results');
+            const additionalInfoInput = document.getElementById('additional-info');
+            const offlineResolvedNumberCheckbox = document.getElementById('offline-resolved-number');
+            const customerAnsweredRadios = document.querySelectorAll('input[name="customer-answered"]');
+            const customerVerifiedGroup = document.getElementById('customer-verified-group');
+
             // Callback selectors
             const callbackBookedCheckbox = document.getElementById('callback-booked');
-            const callbackDetailsContainer = document.getElementById('callback-details-container');
+            const callbackSchedulerContainer = document.getElementById('callback-scheduler-container');
             const callbackDetailsInput = document.getElementById('callback-details');
+            const callbackTimesContainer = document.getElementById('callback-times-container');
+            
+            // Calendar selectors
+            const monthYearDisplay = document.getElementById('month-year-display');
+            const calendarBody = document.getElementById('calendar-body');
+            const prevMonthBtn = document.getElementById('prev-month-btn');
+            const nextMonthBtn = document.getElementById('next-month-btn');
 
-            // --- Accordion Logic ---
+            // --- Mock Database for Error Codes (Placeholder) ---
+            const mockErrorDatabase = [
+                { code: 'F123', description: 'Network connection timeout' },
+                { code: 'F456', description: 'Authentication failure' },
+                { code: 'A789', description: 'Account provisioning error' },
+                { code: 'A790', description: 'Account sync issue' },
+                { code: 'B111', description: 'Billing system mismatch' }
+            ];
+            
+            // --- Calendar Logic ---
+            let currentDate = new Date();
+            let currentYear = currentDate.getFullYear();
+            let currentMonth = currentDate.getMonth();
 
-            const setActiveStep = (stepToActivate) => {
-                 allFormSteps.forEach(step => {
-                    // Only collapse steps that are currently visible
-                    if (step !== stepToActivate && !step.parentElement.classList.contains('hidden')) {
-                        step.classList.add('collapsed');
+            const renderCalendar = (year, month) => {
+                calendarBody.innerHTML = '';
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDateOfMonth = new Date(year, month + 1, 0);
+                const lastDateOfPrevMonth = new Date(year, month, 0);
+
+                monthYearDisplay.textContent = firstDayOfMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+                let firstDayIndex = firstDayOfMonth.getDay(); 
+                if (firstDayIndex === 0) firstDayIndex = 7; 
+
+                for (let i = firstDayIndex - 1; i > 0; i--) {
+                    const day = lastDateOfPrevMonth.getDate() - i + 1;
+                    const cell = document.createElement('div');
+                    cell.classList.add('date-cell', 'other-month');
+                    cell.textContent = day;
+                    calendarBody.appendChild(cell);
+                }
+
+                for (let i = 1; i <= lastDateOfMonth.getDate(); i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('date-cell');
+                    cell.textContent = i;
+                    
+                    const today = new Date();
+                    if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        cell.classList.add('today');
                     }
-                });
-                if (stepToActivate) {
-                    stepToActivate.classList.remove('collapsed');
+
+                    cell.addEventListener('click', () => {
+                        document.querySelectorAll('.date-cell.selected').forEach(c => c.classList.remove('selected'));
+                        cell.classList.add('selected');
+                        const selectedDate = new Date(year, month, i);
+                        generateTimeSlots(selectedDate);
+                    });
+                    calendarBody.appendChild(cell);
                 }
             };
 
-            allFormSteps.forEach(step => {
-                const header = step.querySelector('h3');
-                if(header) {
-                    header.addEventListener('click', () => {
-                        // Toggle the clicked step if it's already active, otherwise activate it
-                         if (step.classList.contains('collapsed')) {
-                            setActiveStep(step);
-                         }
+            prevMonthBtn.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+                renderCalendar(currentYear, currentMonth);
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+                renderCalendar(currentYear, currentMonth);
+            });
+
+
+            const generateTimeSlots = (date) => {
+                callbackTimesContainer.innerHTML = '';
+                callbackDetailsInput.value = ''; // Reset selection
+                const day = date.getDay();
+                const isSunday = day === 0;
+                
+                const startHour = isSunday ? 9 : 8;
+                const endHour = isSunday ? 19 : 20;
+
+                for (let h = startHour; h < endHour; h++) {
+                    for (let m = 0; m < 60; m += 15) {
+                        const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.classList.add('time-slot-button');
+                        button.textContent = time;
+
+                        button.addEventListener('click', () => {
+                             document.querySelectorAll('.time-slot-button').forEach(btn => btn.classList.remove('active'));
+                             button.classList.add('active');
+                             const selectedDateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                             callbackDetailsInput.value = `${selectedDateStr} ${time}`;
+                        });
+                        callbackTimesContainer.appendChild(button);
+                    }
+                }
+            };
+
+
+            // --- Error Code Search Functionality ---
+            const displayErrorCodeResults = (results) => {
+                errorCodeResultsContainer.innerHTML = '';
+                if (results.length === 0) {
+                    errorCodeResultsContainer.classList.add('hidden');
+                    return;
+                }
+                results.forEach(result => {
+                    const item = document.createElement('div');
+                    item.classList.add('search-result-item');
+                    item.innerHTML = `<strong>${result.code}</strong> - ${result.description}`;
+                    item.addEventListener('click', () => {
+                        delayErrorCodeInput.value = result.code;
+                        errorCodeResultsContainer.classList.add('hidden');
                     });
+                    errorCodeResultsContainer.appendChild(item);
+                });
+                errorCodeResultsContainer.classList.remove('hidden');
+            };
+
+            delayErrorCodeInput.addEventListener('input', () => {
+                const query = delayErrorCodeInput.value.trim().toLowerCase();
+                if (query.length < 1) {
+                    errorCodeResultsContainer.classList.add('hidden');
+                    return;
+                }
+                // In a real application, this would be an API call to a database
+                const filteredResults = mockErrorDatabase.filter(item =>
+                    item.code.toLowerCase().includes(query) || item.description.toLowerCase().includes(query)
+                );
+                displayErrorCodeResults(filteredResults);
+            });
+
+            // Hide search results when clicking elsewhere in the document
+            document.addEventListener('click', (event) => {
+                if (!delayErrorCodeInput.contains(event.target)) {
+                    errorCodeResultsContainer.classList.add('hidden');
                 }
             });
 
-             // Initialize: Collapse all steps except the first one
-            allFormSteps.forEach(step => {
-                if(step.id !== 'step-1-container') {
-                    step.classList.add('collapsed');
-                }
-            });
 
             // --- Event Listeners ---
 
-            // 1. Listen for changes on business area to show the main workflow
+            // 1. Listen for changes on business area to show the correct workflow
             businessAreaRadios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    mainWorkflowContainer.classList.remove('hidden');
-                    setActiveStep(document.getElementById('step-2-container'));
+                radio.addEventListener('change', (event) => {
+                    const selectedValue = event.target.value;
+                    if (selectedValue === 'Offline') {
+                        mainWorkflowContainer.classList.add('hidden');
+                        offlineWorkflowContainer.classList.remove('hidden');
+                    } else {
+                        mainWorkflowContainer.classList.remove('hidden');
+                        offlineWorkflowContainer.classList.add('hidden');
+                    }
                 });
             });
 
-            // 2. Listen for changes on the validation radio buttons to show the correct path
+            // 2. Listen for changes on the validation radio buttons (standard workflow)
             validationRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     if (event.target.value === 'yes') {
                         validationYesPath.classList.remove('hidden');
                         validationNoPath.classList.add('hidden');
-                        setActiveStep(document.getElementById('step-3-container'));
                     } else {
                         validationNoPath.classList.remove('hidden');
                         validationYesPath.classList.add('hidden');
-                        setActiveStep(document.getElementById('validation-no-path'));
                     }
                 });
             });
 
-            // 3. Handle form submission to generate the note
+            // 3. Conditional logic for Customer Verified section (Offline Workflow)
+            customerAnsweredRadios.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    if (event.target.value === 'No') {
+                        customerVerifiedGroup.classList.add('hidden');
+                    } else {
+                        customerVerifiedGroup.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // 4. Handle form submission to generate the note
             noteForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
                 const selectedArea = document.querySelector('input[name="business-area"]:checked')?.value;
-                const validateYes = document.getElementById('validate-yes').checked;
                 let finalNote = '';
+                
+                const formatLine = (key, value) => `${key.padEnd(20, ' ')}: ${value || 'N/A'}`;
 
-                if (validateYes) {
-                    // --- GENERATE NOTE FOR SUCCESSFUL VALIDATION ---
-                    const customerName = custNameInput.value.trim();
-                    const accountNumber = accountNumberInput.value.trim();
-                    const phoneNumber = phoneNumberInput.value.trim();
-                    const issueSummary = issueSummaryInput.value.trim();
-
-                    const checkedActions = document.querySelectorAll('input[name="action"]:checked');
-                    let actionsText = '';
-                    if (checkedActions.length > 0) {
-                        actionsText = '\n- - - Actions Taken - - -\n';
-                        checkedActions.forEach(checkbox => {
-                            actionsText += `• ${checkbox.value}\n`;
-                        });
+                if (selectedArea === 'Offline') {
+                    const delayErrorCode = delayErrorCodeInput.value.trim();
+                    const preTextSent = document.querySelector('input[name="pre-text-sent"]:checked')?.value || 'N/A';
+                    const customerAnswered = document.querySelector('input[name="customer-answered"]:checked')?.value || 'N/A';
+                    let customerVerified = document.querySelector('input[name="customer-verified"]:checked')?.value || 'N/A';
+                    
+                    if (customerAnswered === 'No') {
+                        customerVerified = 'No'; // Override if customer didn't answer
                     }
+                    
+                    const postTextSent = document.querySelector('input[name="post-text-sent"]:checked')?.value || 'N/A';
+                    
+                    const isResolvedAndNumber = offlineResolvedNumberCheckbox.checked;
+                    const additionalInfo = additionalInfoInput.value.trim();
 
-                    const callbackBooked = callbackBookedCheckbox.checked;
-                    const callbackStatus = callbackBooked ? 'Yes' : 'No';
-                    const callbackDetails = callbackBooked ? callbackDetailsInput.value.trim() : 'N/A';
+                    let hashtags = [];
+                    if (isResolvedAndNumber) {
+                        hashtags.push('#Resolved #Number');
+                    }
+                    
+                    const contactAttempts = `Answered: ${customerAnswered} | Verified: ${customerVerified}`;
+                    const smsAttempts = `Pre-Text: ${preTextSent} | Post-Text: ${postTextSent}`;
 
                     finalNote = `
-- - - Call Details - - -
-Business Area: ${selectedArea || 'N/A'}
+---[ OFFLINE WORKFLOW ]----------------------------------
+${formatLine('Business Area', 'Offline')}
+${formatLine('Delay Error Code', delayErrorCode)}
+${formatLine('Contact Summary', contactAttempts)}
+${formatLine('SMS Summary', smsAttempts)}
+${formatLine('Resolution', hashtags.join('') || 'N/A')}
 
-- - - Customer & Account Details - - -
-Customer Name: ${customerName || 'N/A'}
-Account Number: ${accountNumber || 'N/A'}
-Phone Number: ${phoneNumber || 'N/A'}
+---[ ADDITIONAL INFO ]-----------------------------------
 
-- - - Issue Summary - - -
-${issueSummary || 'N/A'}
-${actionsText}
-- - - Outcome & Next Steps - - -
-Callback Booked: ${callbackStatus}
-Callback Details: ${callbackDetails}
-`.trim();
+${additionalInfo || 'No additional info provided.'}
+                    `.trim();
+
                 } else {
-                    // --- GENERATE NOTE FOR FAILED VALIDATION (OR if no validation choice made) ---
-                    const reason = validationFailReasonInput.value.trim();
-                    finalNote = `
-- - - Call Details - - -
-Business Area: ${selectedArea || 'N/A'}
+                    const validateYes = document.getElementById('validate-yes').checked;
+                    if (validateYes) {
+                        const customerName = custNameInput.value.trim();
+                        const accountNumber = accountNumberInput.value.trim();
+                        const phoneNumber = phoneNumberInput.value.trim();
+                        const issueSummary = issueSummaryInput.value.trim();
+                        const checkedActions = document.querySelectorAll('input[name="action"]:checked');
+                        
+                        let actionsText = '';
+                        if (checkedActions.length > 0) {
+                            actionsText = `\n---[ ACTIONS TAKEN ]-------------------------------------\n\n`;
+                            checkedActions.forEach(checkbox => {
+                                actionsText += `  • ${checkbox.value}\n`;
+                            });
+                        }
 
-- - - Validation Not Completed - - -
+                        const callbackBooked = callbackBookedCheckbox.checked;
+                        let callbackDetailsText = 'No';
+                        if (callbackBooked && callbackDetailsInput.value) {
+                             const cbDate = new Date(callbackDetailsInput.value);
+                             callbackDetailsText = `Yes\n${formatLine('Callback Details', cbDate.toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' }))}`;
+                        } else if (callbackBooked) {
+                             callbackDetailsText = `Yes (No time selected)`;
+                        }
+
+                        finalNote = `
+---[ CALL DETAILS ]--------------------------------------
+${formatLine('Business Area', selectedArea)}
+
+---[ CUSTOMER & ACCOUNT ]--------------------------------
+${formatLine('Customer Name', customerName)}
+${formatLine('Account Number', accountNumber)}
+${formatLine('Phone Number', phoneNumber)}
+
+---[ ISSUE SUMMARY ]-------------------------------------
+
+${issueSummary || 'No summary provided.'}
+${actionsText}
+---[ OUTCOME & NEXT STEPS ]------------------------------
+${formatLine('Callback Booked', callbackDetailsText)}
+`.trim();
+
+                    } else {
+                        const reason = validationFailReasonInput.value.trim();
+                        finalNote = `
+---[ CALL DETAILS ]--------------------------------------
+${formatLine('Business Area', selectedArea)}
+
+---[ VALIDATION NOT COMPLETED ]--------------------------
+
 Customer validation was not completed.
 
 Reason:
 ${reason || 'No reason provided.'}
 `.trim();
+                    }
                 }
                 
                 outputNoteTextarea.value = finalNote;
             });
 
-            // 4. Toggle visibility of the callback details input field
+            // 5. Toggle visibility of the callback scheduler
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
-                    callbackDetailsContainer.classList.remove('hidden');
+                    callbackSchedulerContainer.classList.remove('hidden');
+                    renderCalendar(currentYear, currentMonth);
                 } else {
-                    callbackDetailsContainer.classList.add('hidden');
+                    callbackSchedulerContainer.classList.add('hidden');
                     callbackDetailsInput.value = '';
                 }
             });
 
-            // 5. Handle the "Copy to Clipboard" button click
+            // 6. Handle the "Copy to Clipboard" button click
             copyButton.addEventListener('click', () => {
                 if (outputNoteTextarea.value.length === 0) return;
                 
@@ -524,33 +876,28 @@ ${reason || 'No reason provided.'}
                         copyButton.disabled = false;
                     }, 2000);
                 };
-
-                navigator.clipboard.writeText(outputNoteTextarea.value).then(provideCopyFeedback).catch(err => {
-                    console.error('Failed to copy text: ', err);
-                    // Basic fallback for older browsers
-                    try {
-                        outputNoteTextarea.select();
-                        document.execCommand('copy');
-                        provideCopyFeedback();
-                    } catch (e) {
-                         alert('Could not copy text to clipboard.');
-                    }
-                });
+                
+                try {
+                    outputNoteTextarea.select();
+                    outputNoteTextarea.setSelectionRange(0, 99999);
+                    document.execCommand('copy');
+                    provideCopyFeedback();
+                } catch (e) {
+                     alert('Could not copy text to clipboard.');
+                }
             });
 
-            // 6. Handle form reset to clear output and hide conditional steps
+            // 7. Handle form reset to clear output and hide conditional steps
             noteForm.addEventListener('reset', () => {
                 outputNoteTextarea.value = '';
                 mainWorkflowContainer.classList.add('hidden');
+                offlineWorkflowContainer.classList.add('hidden');
                 validationYesPath.classList.add('hidden');
                 validationNoPath.classList.add('hidden');
-                callbackDetailsContainer.classList.add('hidden');
-                 // Reset accordion state
-                allFormSteps.forEach(step => step.classList.add('collapsed'));
-                document.getElementById('step-1-container').classList.remove('collapsed');
+                callbackSchedulerContainer.classList.add('hidden');
+                customerVerifiedGroup.classList.remove('hidden'); // Also reset this on form clear
             });
         });
     </script>
 </body>
 </html>
-
