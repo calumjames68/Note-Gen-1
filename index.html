@@ -356,15 +356,27 @@
             line-height: 1.4;
         }
         
-        /* --- Copy Feedback Styling --- */
-        #copy-feedback {
-            color: var(--primary-color);
-            font-weight: 500;
+        /* --- Notification Pop-up Styling --- */
+        .notification-popup {
+            position: fixed;
+            bottom: -100px; /* Start off-screen */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--bt-purple);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
             opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+            visibility: hidden;
+            transition: opacity 0.4s ease, bottom 0.4s ease, visibility 0.4s;
         }
-        #copy-feedback.show {
+
+        .notification-popup.show {
+            bottom: 30px;
             opacity: 1;
+            visibility: visible;
         }
 
         /* Utility class for hiding elements */
@@ -617,13 +629,12 @@
         <section class="output-section">
             <h2>Generated Note</h2>
             <textarea id="output-note" readonly placeholder="Your generated note will appear here..."></textarea>
-            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
-                <button id="copy-button" class="btn-secondary">Copy to Clipboard</button>
-                <span id="copy-feedback"></span>
-            </div>
+            <button id="copy-button" class="btn-secondary" style="margin-top: 1rem;">Copy to Clipboard</button>
         </section>
 
     </main>
+
+    <div id="notification-popup" class="notification-popup"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -712,7 +723,7 @@
             const noteForm = document.getElementById('note-form');
             const outputNoteTextarea = document.getElementById('output-note');
             const copyButton = document.getElementById('copy-button');
-            const copyFeedbackSpan = document.getElementById('copy-feedback');
+            const notificationPopup = document.getElementById('notification-popup');
             
             // Step containers and paths
             const step1Container = document.getElementById('step-1-container');
@@ -782,8 +793,24 @@
             // --- Reusable Functions ---
 
             /**
+             * Shows a notification pop-up at the bottom of the screen.
+             * @param {string} message - The message to display.
+             * @param {boolean} [isSuccess=true] - Determines the background color.
+             */
+            const showNotification = (message, isSuccess = true) => {
+                notificationPopup.textContent = message;
+                notificationPopup.style.backgroundColor = isSuccess ? 'var(--primary-color)' : '#d9534f'; // Use primary color for success, red for failure
+                notificationPopup.classList.add('show');
+
+                // Hide the notification after 3 seconds
+                setTimeout(() => {
+                    notificationPopup.classList.remove('show');
+                }, 3000);
+            };
+
+            /**
              * Copies the content of the output note textarea to the clipboard
-             * and provides visual feedback to the user.
+             * and provides visual feedback to the user via a pop-up.
              */
             const copyNoteToClipboard = () => {
                 if (outputNoteTextarea.value.length === 0) return;
@@ -792,21 +819,10 @@
                     outputNoteTextarea.select();
                     outputNoteTextarea.setSelectionRange(0, 99999); // For mobile devices
                     document.execCommand('copy');
-
-                    // Provide success feedback
-                    copyFeedbackSpan.textContent = 'Copied!';
-                    copyFeedbackSpan.classList.add('show');
-                    setTimeout(() => {
-                        copyFeedbackSpan.classList.remove('show');
-                    }, 2000);
+                    showNotification('Note copied to clipboard!');
                 } catch (e) {
                     console.error('Failed to copy text: ', e);
-                    // Provide failure feedback
-                    copyFeedbackSpan.textContent = 'Failed to copy!';
-                    copyFeedbackSpan.classList.add('show');
-                    setTimeout(() => {
-                        copyFeedbackSpan.classList.remove('show');
-                    }, 2000);
+                    showNotification('Failed to copy note!', false);
                 }
                 // Deselect the text after the operation
                 window.getSelection().removeAllRanges();
