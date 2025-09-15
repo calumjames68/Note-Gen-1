@@ -355,6 +355,17 @@
             white-space: pre-wrap; /* Ensures text wraps correctly */
             line-height: 1.4;
         }
+        
+        /* --- Copy Feedback Styling --- */
+        #copy-feedback {
+            color: var(--primary-color);
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        #copy-feedback.show {
+            opacity: 1;
+        }
 
         /* Utility class for hiding elements */
         .hidden {
@@ -606,7 +617,10 @@
         <section class="output-section">
             <h2>Generated Note</h2>
             <textarea id="output-note" readonly placeholder="Your generated note will appear here..."></textarea>
-            <button id="copy-button" class="btn-secondary">Copy to Clipboard</button>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
+                <button id="copy-button" class="btn-secondary">Copy to Clipboard</button>
+                <span id="copy-feedback"></span>
+            </div>
         </section>
 
     </main>
@@ -698,6 +712,7 @@
             const noteForm = document.getElementById('note-form');
             const outputNoteTextarea = document.getElementById('output-note');
             const copyButton = document.getElementById('copy-button');
+            const copyFeedbackSpan = document.getElementById('copy-feedback');
             
             // Step containers and paths
             const step1Container = document.getElementById('step-1-container');
@@ -763,6 +778,39 @@
                 option.textContent = reason.dropdownText;
                 delayReasonSelect.appendChild(option);
             });
+            
+            // --- Reusable Functions ---
+
+            /**
+             * Copies the content of the output note textarea to the clipboard
+             * and provides visual feedback to the user.
+             */
+            const copyNoteToClipboard = () => {
+                if (outputNoteTextarea.value.length === 0) return;
+
+                try {
+                    outputNoteTextarea.select();
+                    outputNoteTextarea.setSelectionRange(0, 99999); // For mobile devices
+                    document.execCommand('copy');
+
+                    // Provide success feedback
+                    copyFeedbackSpan.textContent = 'Copied!';
+                    copyFeedbackSpan.classList.add('show');
+                    setTimeout(() => {
+                        copyFeedbackSpan.classList.remove('show');
+                    }, 2000);
+                } catch (e) {
+                    console.error('Failed to copy text: ', e);
+                    // Provide failure feedback
+                    copyFeedbackSpan.textContent = 'Failed to copy!';
+                    copyFeedbackSpan.classList.add('show');
+                    setTimeout(() => {
+                        copyFeedbackSpan.classList.remove('show');
+                    }, 2000);
+                }
+                // Deselect the text after the operation
+                window.getSelection().removeAllRanges();
+            };
             
             // --- Calendar & Time Picker Logic ---
             let selectedDateMain = null;
@@ -1146,6 +1194,7 @@ ${reason || 'No reason provided.'}
                 }
                 
                 outputNoteTextarea.value = finalNote;
+                copyNoteToClipboard(); // Auto-copy the note to clipboard
             });
 
             // 8. Toggle visibility of callback schedulers
@@ -1175,28 +1224,7 @@ ${reason || 'No reason provided.'}
             });
 
             // 9. Handle the "Copy to Clipboard" button click
-            copyButton.addEventListener('click', () => {
-                if (outputNoteTextarea.value.length === 0) return;
-                
-                const provideCopyFeedback = () => {
-                    const originalText = copyButton.textContent;
-                    copyButton.textContent = 'Copied!';
-                    copyButton.disabled = true;
-                    setTimeout(() => {
-                        copyButton.textContent = originalText;
-                        copyButton.disabled = false;
-                    }, 2000);
-                };
-                
-                try {
-                    outputNoteTextarea.select();
-                    outputNoteTextarea.setSelectionRange(0, 99999);
-                    document.execCommand('copy');
-                    provideCopyFeedback();
-                } catch (e) {
-                     alert('Could not copy text to clipboard.');
-                }
-            });
+            copyButton.addEventListener('click', copyNoteToClipboard);
 
             // 10. Handle form reset
             noteForm.addEventListener('reset', () => {
