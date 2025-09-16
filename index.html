@@ -101,7 +101,7 @@
         
         .step-content {
             padding-top: 1rem;
-            max-height: 1000px;
+            max-height: 1000px; /* Adjust as needed */
             overflow: hidden;
             transition: max-height 0.5s ease-in-out, padding-top 0.5s ease-in-out, visibility 0s 0.5s;
         }
@@ -255,6 +255,32 @@
             color: var(--bt-purple);
         }
 
+        .case-reference-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* --- DI Outcome Section Consistency --- */
+        .di-outcome-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .di-outcome-item label {
+             margin-bottom: 0;
+        }
+
+
+        .case-reference-item label {
+            margin-bottom: 0; /* Override default label margin */
+            white-space: nowrap;
+            flex-shrink: 0;
+            width: 130px; /* Set a fixed width to align the input boxes */
+        }
+        .case-reference-item input[type="text"] {
+            flex-grow: 1;
+        }
+
         /* --- Condensed Contact Attempts --- */
         .contact-attempts-grid {
             display: grid;
@@ -379,9 +405,83 @@
             visibility: visible;
         }
 
+        /* --- Modal Styling --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s;
+        }
+        .modal-overlay:not(.hidden) {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--container-bg-color);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay:not(.hidden) .modal-content {
+             transform: translateY(0);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--secondary-color);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-content h3 {
+            color: var(--bt-purple);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content p {
+            margin-bottom: 1rem;
+        }
+        
+        .modal-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+        .modal-link:hover {
+            background-color: #017a82;
+        }
+
+
         /* Utility class for hiding elements */
         .hidden {
-            display: none;
+            display: none !important; /* Use important to override other styles */
         }
     </style>
 </head>
@@ -617,6 +717,118 @@
                     </div>
                 </div>
 
+                <!-- DI WORKFLOW CONTAINER -->
+                <div id="di-workflow-container" class="hidden">
+                    <div class="form-step">
+                        <h3>DI: Initial Call Details</h3>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label>Call from Guide?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="di-call-from-guide" value="Yes"> Yes</label>
+                                    <label><input type="radio" name="di-call-from-guide" value="No"> No</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>What Brand?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="di-brand" value="BT"> BT</label>
+                                    <label><input type="radio" name="di-brand" value="EE"> EE</label>
+                                </div>
+                            </div>
+                            <div class="form-group hidden" id="di-cold-transfer-group">
+                                <div class="checkbox-group">
+                                     <label><input type="checkbox" id="di-cold-transfer"> Cold Transfer?</label>
+                                </div>
+                            </div>
+                            <div class="form-group hidden" id="di-albert-flow-group">
+                                <label for="di-albert-flow">Albert Flow Used</label>
+                                <select id="di-albert-flow">
+                                    <option value="" selected disabled>Select a flow...</option>
+                                    <option value="">999</option>
+                                    <option value="Amend">Address matching</option>
+                                    <option value="">Billing</option>
+                                    <option value="Amend">BT to New EE regrades</option>
+                                    <option value="">Error code or message</option>
+                                    <option value="">Escalation</option>
+                                    <option value="">Faults</option>
+                                    <option value="">Find a Fix</option>
+                                    <option value="">Incorrect referral</option>
+                                    <option value="Create">Orders</option>
+                                    <option value="Amend">Package/Promotion</option>
+                                    <option value="Amend">Product</option>
+                                    <option value="Amend">One Touch Switching</option>
+                                </select>
+                            </div>
+                            <div class="form-group hidden" id="di-correct-flow-group">
+                                <label>Is this a DI issue?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="di-correct-flow" value="Yes"> Yes</label>
+                                    <label><input type="radio" name="di-correct-flow" value="No"> No</label>
+                                </div>
+                            </div>
+                             <div class="form-group hidden" id="di-referred-to-group">
+                                <label>What department have you referred the guide to?</label>
+                                <div class="choice-group">
+                                    <label><input type="radio" name="di-referred-to" value="Billing"> Billing</label>
+                                    <label><input type="radio" name="di-referred-to" value="Sales"> Sales</label>
+                                    <label><input type="radio" name="di-referred-to" value="Connections"> Connections</label>
+                                </div>
+                            </div>
+                            <div class="form-group" id="di-issue-summary-group">
+                                <label for="di-issue-summary">DI Issue Summary</label>
+                                <textarea id="di-issue-summary" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-step">
+                        <h3>DI: Outcome & Next Steps</h3>
+                        <div class="step-content">
+                             <div class="form-group">
+                                <div class="di-outcome-item case-reference-item">
+                                    <label class="callback-label"><input type="checkbox" id="di-ordi-checkbox" name="di-case-type" value="ORDI"> ORDI</label>
+                                    <input type="text" id="di-ordi-reference" class="hidden" placeholder="ORDI Reference...">
+                                </div>
+                                <div class="di-outcome-item case-reference-item">
+                                    <label class="callback-label"><input type="checkbox" id="di-bridge-case-checkbox" name="di-case-type" value="Bridge Case"> Bridge Case</label>
+                                    <input type="text" id="di-bridge-case-reference" class="hidden" placeholder="Bridge Case Reference...">
+                                </div>
+                            </div>
+                             <div class="form-group di-outcome-item">
+                                <label class="callback-label"><input type="checkbox" id="di-referral-form"> Incorrect Referral Form Raised?</label>
+                            </div>
+                            <div class="form-group di-outcome-item">
+                                <label class="callback-label"><input type="checkbox" id="di-callback-booked"> Callback Booked?</label>
+                            </div>
+                            <div class="form-group hidden" id="di-callback-scheduler-container">
+                                <label>Select Callback Date & Time</label>
+                                <div class="calendar-container">
+                                    <div class="calendar-header">
+                                        <button type="button" id="di-prev-month-btn">&lt;</button>
+                                        <span id="di-month-year-display" class="month-year-display"></span>
+                                        <button type="button" id="di-next-month-btn">&gt;</button>
+                                    </div>
+                                    <div class="calendar-weekdays">
+                                        <div class="weekday">Mon</div><div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div><div class="weekday">Fri</div><div class="weekday">Sat</div><div class="weekday">Sun</div>
+                                    </div>
+                                    <div id="di-calendar-body" class="calendar-body"></div>
+                                </div>
+                                <div class="time-picker-container">
+                                    <select id="di-hour-picker"></select>
+                                    <span>:</span>
+                                    <select id="di-minute-picker"></select>
+                                </div>
+                                <input type="hidden" id="di-callback-details">
+                            </div>
+                             <div class="form-group">
+                                <label for="di-next-actions">Next Actions</label>
+                                <textarea id="di-next-actions" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="button-group">
                     <button type="submit" class="btn-primary">Generate Note</button>
                     <button type="reset" class="btn-secondary">Clear Form</button>
@@ -633,6 +845,26 @@
         </section>
 
     </main>
+
+    <!-- Incorrect Referral Modal -->
+    <div id="referral-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button type="button" class="modal-close-btn">&times;</button>
+            <h3>Incorrect Referral</h3>
+            <p>Because this was a cold transfer, an incorrect referral form must be raised.</p>
+            <p>Please use the link below to complete the form:</p>
+            <a href="https://forms.office.com/pages/responsepage.aspx?id=iFbzpwCcXk26QSnxRjd6sNgLHVkoLC9BtSpITX1NlXBUOFBUNFo1U0wzVldENTVMQ1lVNEpYSFkxMC4u&route=shorturl" target="_blank" rel="noopener noreferrer" class="modal-link">Open Referral Form</a>
+        </div>
+    </div>
+
+    <!-- DI Issue Modal -->
+    <div id="di-issue-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button type="button" class="modal-close-btn">&times;</button>
+            <h3>Not a DI Issue</h3>
+            <p>If this is not a DI issue, please do not accept the customer. Refer them to the correct department.</p>
+        </div>
+    </div>
 
     <div id="notification-popup" class="notification-popup"></div>
 
@@ -730,11 +962,12 @@
             const businessAreaRadios = document.querySelectorAll('input[name="business-area"]');
             const mainWorkflowContainer = document.getElementById('main-workflow-container');
             const offlineWorkflowContainer = document.getElementById('offline-workflow-container');
+            const diWorkflowContainer = document.getElementById('di-workflow-container'); // DI container
             const validationYesPath = document.getElementById('validation-yes-path');
             const validationNoPath = document.getElementById('validation-no-path');
             const validationRadios = document.querySelectorAll('input[name="validation"]');
 
-            // Form field selectors
+            // Form field selectors (Standard)
             const custNameInput = document.getElementById('cust-name');
             const accountNumberInput = document.getElementById('account-number');
             const phoneNumberInput = document.getElementById('phone-number');
@@ -756,6 +989,29 @@
             const offlineNumberInput = document.getElementById('offline-number-input');
             const customerAnsweredRadios = document.querySelectorAll('input[name="customer-answered"]');
             const customerVerifiedGroup = document.getElementById('customer-verified-group');
+
+            // DI Workflow Selectors
+            const diCallFromGuideRadios = document.querySelectorAll('input[name="di-call-from-guide"]');
+            const diAlbertFlowGroup = document.getElementById('di-albert-flow-group');
+            const diAlbertFlowSelect = document.getElementById('di-albert-flow');
+            const diCorrectFlowGroup = document.getElementById('di-correct-flow-group');
+            const diCorrectFlowRadios = document.querySelectorAll('input[name="di-correct-flow"]');
+            const diReferredToGroup = document.getElementById('di-referred-to-group');
+            const diColdTransferGroup = document.getElementById('di-cold-transfer-group');
+            const diColdTransferCheckbox = document.getElementById('di-cold-transfer');
+            const diReferralFormCheckbox = document.getElementById('di-referral-form');
+            const diIssueSummaryGroup = document.getElementById('di-issue-summary-group');
+            const diCaseTypeCheckboxes = document.querySelectorAll('input[name="di-case-type"]');
+            const diCaseDetailsGroup = document.getElementById('di-case-details-group');
+            const diOrdiCheckbox = document.getElementById('di-ordi-checkbox');
+            const diOrdiReference = document.getElementById('di-ordi-reference');
+            const diBridgeCaseCheckbox = document.getElementById('di-bridge-case-checkbox');
+            const diBridgeCaseReference = document.getElementById('di-bridge-case-reference');
+            const referralModal = document.getElementById('referral-modal');
+            const modalCloseBtn = referralModal.querySelector('.modal-close-btn');
+            const diIssueModal = document.getElementById('di-issue-modal');
+            const diIssueModalCloseBtn = diIssueModal.querySelector('.modal-close-btn');
+
 
             // Callback selectors (Standard Workflow)
             const callbackBookedCheckbox = document.getElementById('callback-booked');
@@ -779,6 +1035,17 @@
             const offlinePrevMonthBtn = document.getElementById('offline-prev-month-btn');
             const offlineNextMonthBtn = document.getElementById('offline-next-month-btn');
             
+            // Callback selectors (DI Workflow)
+            const diCallbackBookedCheckbox = document.getElementById('di-callback-booked');
+            const diCallbackSchedulerContainer = document.getElementById('di-callback-scheduler-container');
+            const diCallbackDetailsInput = document.getElementById('di-callback-details');
+            const diHourPicker = document.getElementById('di-hour-picker');
+            const diMinutePicker = document.getElementById('di-minute-picker');
+            const diMonthYearDisplay = document.getElementById('di-month-year-display');
+            const diCalendarBody = document.getElementById('di-calendar-body');
+            const diPrevMonthBtn = document.getElementById('di-prev-month-btn');
+            const diNextMonthBtn = document.getElementById('di-next-month-btn');
+            
             
             // --- INITIALIZATION ---
             
@@ -791,6 +1058,17 @@
             });
             
             // --- Reusable Functions ---
+            const formatDateTimeForNote = (date) => {
+                if (!date) return 'N/A';
+                const d = new Date(date);
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = String(d.getFullYear()).slice(-2);
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            };
+
 
             /**
              * Shows a notification pop-up at the bottom of the screen.
@@ -831,24 +1109,21 @@
             // --- Calendar & Time Picker Logic ---
             let selectedDateMain = null;
             let selectedDateOffline = null;
+            let selectedDateDI = null;
 
-            const setupTimePicker = (hourPicker, minutePicker, hiddenInput, dateRef, startHour, endHour) => {
+            const setupTimePicker = (hourPicker, minutePicker, hiddenInput, dateRef, startHour, endHour, minuteIncrement) => {
                 let hourOptions = '';
                 let minuteOptions = '';
 
-                // Default hour is the start of the range (e.g., 08)
                 const defaultHour = String(startHour).padStart(2, '0');
 
                 for (let i = startHour; i <= endHour; i++) {
                     const hour = String(i).padStart(2, '0');
-                    // The selected attribute is added to the defaultHour
                     hourOptions += `<option value="${hour}" ${hour === defaultHour ? 'selected' : ''}>${hour}</option>`;
                 }
 
-                // Create minute options in 5-minute increments
-                for (let i = 0; i < 60; i += 5) {
+                for (let i = 0; i < 60; i += minuteIncrement) {
                     const minute = String(i).padStart(2, '0');
-                     // The selected attribute is added to '00'
                     minuteOptions += `<option value="${minute}" ${minute === '00' ? 'selected' : ''}>${minute}</option>`;
                 }
 
@@ -863,7 +1138,6 @@
                     }
                 };
                 
-                // Immediately update the hidden input with the default time
                 updateHiddenInput();
 
                 hourPicker.addEventListener('change', updateHiddenInput);
@@ -918,7 +1192,7 @@
                 if (main_currentMonth < 0) { main_currentMonth = 11; main_currentYear--; }
                 renderCalendar(main_currentYear, main_currentMonth, calendarBody, monthYearDisplay, (date) => {
                      selectedDateMain = date;
-                     setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20); // M-Sa 8-8
+                     setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20, 5);
                 });
             });
             nextMonthBtn.addEventListener('click', () => {
@@ -926,7 +1200,7 @@
                 if (main_currentMonth > 11) { main_currentMonth = 0; main_currentYear++; }
                 renderCalendar(main_currentYear, main_currentMonth, calendarBody, monthYearDisplay, (date) => {
                     selectedDateMain = date;
-                    setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20); // M-Sa 8-8
+                    setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20, 5);
                 });
             });
 
@@ -939,7 +1213,7 @@
                 if (offline_currentMonth < 0) { offline_currentMonth = 11; offline_currentYear--; }
                 renderCalendar(offline_currentYear, offline_currentMonth, offlineCalendarBody, offlineMonthYearDisplay, (date) => {
                     selectedDateOffline = date;
-                    setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21);
+                    setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21, 5);
                 });
             });
             offlineNextMonthBtn.addEventListener('click', () => {
@@ -947,7 +1221,28 @@
                 if (offline_currentMonth > 11) { offline_currentMonth = 0; offline_currentYear++; }
                 renderCalendar(offline_currentYear, offline_currentMonth, offlineCalendarBody, offlineMonthYearDisplay, (date) => {
                     selectedDateOffline = date;
-                    setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21);
+                    setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21, 5);
+                });
+            });
+            
+            // Setup DI Calendar
+            let di_currentDate = new Date();
+            let di_currentYear = di_currentDate.getFullYear();
+            let di_currentMonth = di_currentDate.getMonth();
+            diPrevMonthBtn.addEventListener('click', () => {
+                di_currentMonth--;
+                if (di_currentMonth < 0) { di_currentMonth = 11; di_currentYear--; }
+                renderCalendar(di_currentYear, di_currentMonth, diCalendarBody, diMonthYearDisplay, (date) => {
+                    selectedDateDI = date;
+                    setupTimePicker(diHourPicker, diMinutePicker, diCallbackDetailsInput, selectedDateDI, 8, 21, 15);
+                });
+            });
+            diNextMonthBtn.addEventListener('click', () => {
+                di_currentMonth++;
+                if (di_currentMonth > 11) { di_currentMonth = 0; di_currentYear++; }
+                renderCalendar(di_currentYear, di_currentMonth, diCalendarBody, diMonthYearDisplay, (date) => {
+                    selectedDateDI = date;
+                    setupTimePicker(diHourPicker, diMinutePicker, diCallbackDetailsInput, selectedDateDI, 8, 21, 15);
                 });
             });
 
@@ -965,12 +1260,10 @@
                     let finalResults = [];
                     const noCodeResult = { code: 'No Code', description: 'No specific error code provided' };
 
-                    // Check if "No Code" itself should be a result
                     if (noCodeResult.code.toLowerCase().includes(query) || noCodeResult.description.toLowerCase().includes(query)) {
                         finalResults.push(noCodeResult);
                     }
 
-                    // Add filtered results from the database
                     const filteredDb = mockErrorDatabase.filter(item =>
                         item.code.toLowerCase().includes(query) || item.description.toLowerCase().includes(query)
                     );
@@ -993,11 +1286,11 @@
                     }
                 });
                  // Hide search results when clicking elsewhere
-                document.addEventListener('click', (event) => {
-                    if (!inputElement.contains(event.target)) {
-                       resultsContainer.classList.add('hidden');
-                    }
-                });
+                 document.addEventListener('click', (event) => {
+                     if (!inputElement.contains(event.target)) {
+                        resultsContainer.classList.add('hidden');
+                     }
+                 });
             };
 
             setupSearch(delayErrorCodeInput, errorCodeResultsContainer);
@@ -1010,13 +1303,18 @@
             businessAreaRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     const selectedValue = event.target.value;
+                    mainWorkflowContainer.classList.add('hidden');
+                    offlineWorkflowContainer.classList.add('hidden');
+                    diWorkflowContainer.classList.add('hidden');
+                    
                     if (selectedValue === 'Offline') {
-                        mainWorkflowContainer.classList.add('hidden');
                         offlineWorkflowContainer.classList.remove('hidden');
+                        step1Container.classList.add('collapsed');
+                    } else if (selectedValue === 'DI') {
+                        diWorkflowContainer.classList.remove('hidden');
                         step1Container.classList.add('collapsed');
                     } else {
                         mainWorkflowContainer.classList.remove('hidden');
-                        offlineWorkflowContainer.classList.add('hidden');
                         step1Container.classList.remove('collapsed');
                     }
                 });
@@ -1070,8 +1368,77 @@
                 }
             });
 
+            // 7. DI Workflow conditional logic
+            diCallFromGuideRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const fromGuide = e.target.value === 'Yes';
+                    // Show/hide Albert Flow questions
+                    diAlbertFlowGroup.classList.toggle('hidden', !fromGuide);
+                    diCorrectFlowGroup.classList.toggle('hidden', !fromGuide);
+                     // Show/hide Cold Transfer question
+                    diColdTransferGroup.classList.toggle('hidden', fromGuide);
 
-            // 7. Handle form submission
+                    // Reset dependent fields when switching
+                    if (!fromGuide) {
+                       diReferredToGroup.classList.add('hidden');
+                       diAlbertFlowSelect.value = '';
+                       document.querySelector('input[name="di-correct-flow"][value="Yes"]').checked = false;
+                       document.querySelector('input[name="di-correct-flow"][value="No"]').checked = false;
+                    } else {
+                       diColdTransferCheckbox.checked = false;
+                       diReferralFormCheckbox.checked = false; // Uncheck referral if switching back to "Yes"
+                       diIssueSummaryGroup.classList.remove('hidden');
+                    }
+                });
+            });
+
+            diColdTransferCheckbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    diReferralFormCheckbox.checked = true;
+                    referralModal.classList.remove('hidden'); // Show the modal
+                }
+            });
+
+            diCorrectFlowRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const isNotDiIssue = e.target.value === 'No';
+                    diReferredToGroup.classList.toggle('hidden', !isNotDiIssue);
+                    diIssueSummaryGroup.classList.toggle('hidden', isNotDiIssue);
+                    if (isNotDiIssue) {
+                        diIssueModal.classList.remove('hidden');
+                    }
+                });
+            });
+            
+            diOrdiCheckbox.addEventListener('change', () => {
+                diOrdiReference.classList.toggle('hidden', !diOrdiCheckbox.checked);
+                 if (!diOrdiCheckbox.checked) diOrdiReference.value = '';
+            });
+
+            diBridgeCaseCheckbox.addEventListener('change', () => {
+                diBridgeCaseReference.classList.toggle('hidden', !diBridgeCaseCheckbox.checked);
+                if (!diBridgeCaseCheckbox.checked) diBridgeCaseReference.value = '';
+            });
+
+            // Close modal listeners
+            const closeModal = () => referralModal.classList.add('hidden');
+            modalCloseBtn.addEventListener('click', closeModal);
+            referralModal.addEventListener('click', (e) => {
+                if (e.target === referralModal) { // Only close if overlay is clicked
+                    closeModal();
+                }
+            });
+
+            const closeDiIssueModal = () => diIssueModal.classList.add('hidden');
+            diIssueModalCloseBtn.addEventListener('click', closeDiIssueModal);
+            diIssueModal.addEventListener('click', (e) => {
+                if (e.target === diIssueModal) {
+                    closeDiIssueModal();
+                }
+            });
+
+
+            // 8. Handle form submission
             noteForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
@@ -1081,6 +1448,7 @@
                 const formatLine = (key, value) => `${key.padEnd(20, ' ')}: ${value || 'N/A'}`;
 
                 if (selectedArea === 'Offline') {
+                    // --- OFFLINE NOTE GENERATION ---
                     const delayErrorCode1 = delayErrorCodeInput.value.trim();
                     const delayErrorCode2 = delayErrorCodeInput2.value.trim();
                     
@@ -1117,10 +1485,9 @@
                     const callbackBooked = offlineCallbackBookedCheckbox.checked;
                     let callbackDetailsText = 'No';
                      if (callbackBooked && offlineCallbackDetailsInput.value) {
-                         const cbDate = new Date(offlineCallbackDetailsInput.value);
-                         callbackDetailsText = `Yes - ${cbDate.toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' })}`;
+                          callbackDetailsText = `Yes - ${formatDateTimeForNote(offlineCallbackDetailsInput.value)}`;
                     } else if (callbackBooked) {
-                         callbackDetailsText = `Yes (No time selected)`;
+                          callbackDetailsText = `Yes (No time selected)`;
                     }
 
 
@@ -1150,7 +1517,78 @@ ${formatLine('Resolution', hashtags.join(' ') || 'N/A')}
 ${additionalInfo || 'No additional info provided.'}
                     `.trim();
 
+                } else if (selectedArea === 'DI') {
+                    // --- DI NOTE GENERATION ---
+                    const diCallFromGuide = document.querySelector('input[name="di-call-from-guide"]:checked')?.value;
+                    const diBrand = document.querySelector('input[name="di-brand"]:checked')?.value;
+                    const diAlbertFlow = diAlbertFlowSelect.options[diAlbertFlowSelect.selectedIndex]?.text || 'N/A';
+                    const isDiIssue = document.querySelector('input[name="di-correct-flow"]:checked')?.value;
+                    const referredToDept = document.querySelector('input[name="di-referred-to"]:checked')?.value;
+                    const isColdTransfer = diColdTransferCheckbox.checked ? 'Yes' : 'No';
+                    
+                    const diRequestType = diAlbertFlowSelect.value || 'N/A';
+                    
+                    const nextActions = document.getElementById('di-next-actions').value.trim();
+                    const referralFormRaised = document.getElementById('di-referral-form').checked ? 'Yes' : 'No';
+                    
+                    const callbackBooked = diCallbackBookedCheckbox.checked;
+                    let callbackDetailsText = 'No';
+                     if (callbackBooked && diCallbackDetailsInput.value) {
+                          callbackDetailsText = `Yes - ${formatDateTimeForNote(diCallbackDetailsInput.value)}`;
+                    } else if (callbackBooked) {
+                          callbackDetailsText = `Yes (No time selected)`;
+                    }
+                   
+                    let flowDetails = '';
+                    if (diCallFromGuide === 'Yes') {
+                        flowDetails += `\n${formatLine('Albert Flow', diAlbertFlow.includes('Select') ? 'N/A' : diAlbertFlow)}`;
+                        flowDetails += `\n${formatLine('Is a DI issue?', isDiIssue)}`;
+                        if (isDiIssue === 'No') {
+                           flowDetails += `\n${formatLine('Referred To', referredToDept)}`;
+                        }
+                    } else if (diCallFromGuide === 'No') {
+                        flowDetails += `\n${formatLine('Cold Transfer?', isColdTransfer)}`;
+                    }
+
+                    let issueSummarySection = '';
+                    if (isDiIssue !== 'No') {
+                        const diIssueSummary = document.getElementById('di-issue-summary').value.trim();
+                        issueSummarySection = `
+---[ ISSUE SUMMARY ]-------------------------------------
+
+${diIssueSummary || 'No summary provided.'}
+`;
+                    }
+
+                    let outcomeLines = [];
+                    outcomeLines.push(formatLine('Request Type', diRequestType));
+
+                    if (diOrdiCheckbox.checked && diOrdiReference.value.trim()) {
+                        outcomeLines.push(formatLine('ORDI Reference', diOrdiReference.value.trim()));
+                    }
+                    if (diBridgeCaseCheckbox.checked && diBridgeCaseReference.value.trim()) {
+                        outcomeLines.push(formatLine('Bridge Case Ref', diBridgeCaseReference.value.trim()));
+                    }
+
+                    outcomeLines.push(formatLine('Incorrect Referral?', referralFormRaised));
+                    outcomeLines.push(formatLine('Callback Booked?', callbackDetailsText));
+
+
+                    finalNote = `
+---[ DI WORKFLOW ]---------------------------------------
+${formatLine('Business Area', 'DI')}
+${formatLine('Brand', diBrand)}
+${formatLine('Call From Guide?', diCallFromGuide)}${flowDetails}
+${issueSummarySection}
+---[ OUTCOME & NEXT STEPS ]------------------------------
+${outcomeLines.join('\n')}
+
+Next Actions:
+${nextActions || 'No next actions specified.'}
+                    `.trim().replace(/^\s*\n/gm, ''); // clean up empty lines
+
                 } else {
+                    // --- STANDARD NOTE GENERATION ---
                     const validateYes = document.getElementById('validate-yes').checked;
                     if (validateYes) {
                         const customerName = custNameInput.value.trim();
@@ -1170,8 +1608,7 @@ ${additionalInfo || 'No additional info provided.'}
                         const callbackBooked = callbackBookedCheckbox.checked;
                         let callbackDetailsText = 'No';
                         if (callbackBooked && callbackDetailsInput.value) {
-                             const cbDate = new Date(callbackDetailsInput.value);
-                             callbackDetailsText = `Yes\n${formatLine('Callback Details', cbDate.toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' }))}`;
+                             callbackDetailsText = `Yes - ${formatDateTimeForNote(callbackDetailsInput.value)}`;
                         } else if (callbackBooked) {
                              callbackDetailsText = `Yes (No time selected)`;
                         }
@@ -1213,13 +1650,13 @@ ${reason || 'No reason provided.'}
                 copyNoteToClipboard(); // Auto-copy the note to clipboard
             });
 
-            // 8. Toggle visibility of callback schedulers
+            // 9. Toggle visibility of callback schedulers
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
                     callbackSchedulerContainer.classList.remove('hidden');
                     renderCalendar(main_currentYear, main_currentMonth, calendarBody, monthYearDisplay, (date) => {
                         selectedDateMain = date;
-                        setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20); // M-Sa 8-8
+                        setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20, 5);
                     });
                 } else {
                     callbackSchedulerContainer.classList.add('hidden');
@@ -1230,34 +1667,68 @@ ${reason || 'No reason provided.'}
                 if (offlineCallbackBookedCheckbox.checked) {
                     offlineCallbackSchedulerContainer.classList.remove('hidden');
                      renderCalendar(offline_currentYear, offline_currentMonth, offlineCalendarBody, offlineMonthYearDisplay, (date) => {
-                        selectedDateOffline = date;
-                        setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21);
+                         selectedDateOffline = date;
+                         setupTimePicker(offlineHourPicker, offlineMinutePicker, offlineCallbackDetailsInput, selectedDateOffline, 8, 21, 5);
                     });
                 } else {
                     offlineCallbackSchedulerContainer.classList.add('hidden');
                     offlineCallbackDetailsInput.value = '';
                 }
             });
+            diCallbackBookedCheckbox.addEventListener('change', () => {
+                if (diCallbackBookedCheckbox.checked) {
+                    diCallbackSchedulerContainer.classList.remove('hidden');
+                    renderCalendar(di_currentYear, di_currentMonth, diCalendarBody, diMonthYearDisplay, (date) => {
+                        selectedDateDI = date;
+                        setupTimePicker(diHourPicker, diMinutePicker, diCallbackDetailsInput, selectedDateDI, 8, 21, 15);
+                    });
+                } else {
+                    diCallbackSchedulerContainer.classList.add('hidden');
+                    diCallbackDetailsInput.value = '';
+                }
+            });
 
-            // 9. Handle the "Copy to Clipboard" button click
+            // 10. Handle the "Copy to Clipboard" button click
             copyButton.addEventListener('click', copyNoteToClipboard);
 
-            // 10. Handle form reset
+            // 11. Handle form reset
             noteForm.addEventListener('reset', () => {
                 outputNoteTextarea.value = '';
+                // Hide all main containers
                 mainWorkflowContainer.classList.add('hidden');
                 offlineWorkflowContainer.classList.add('hidden');
+                diWorkflowContainer.classList.add('hidden');
+                
+                // Reset standard workflow
                 validationYesPath.classList.add('hidden');
                 validationNoPath.classList.add('hidden');
                 callbackSchedulerContainer.classList.add('hidden');
+                
+                // Reset offline workflow
                 offlineCallbackSchedulerContainer.classList.add('hidden');
                 customerVerifiedGroup.classList.remove('hidden');
-                step1Container.classList.remove('collapsed');
                 addSecondCodeCheckbox.checked = false;
                 secondErrorCodeContainer.classList.add('hidden');
                 delayErrorCodeInput2.value = '';
                 noDelayCheckbox.checked = false;
                 delayReasonGroup.classList.remove('hidden');
+                
+                // Reset DI workflow
+                diCallbackSchedulerContainer.classList.add('hidden');
+                diAlbertFlowGroup.classList.add('hidden');
+                diCorrectFlowGroup.classList.add('hidden');
+                diReferredToGroup.classList.add('hidden');
+                diColdTransferGroup.classList.add('hidden');
+                diColdTransferCheckbox.checked = false;
+                diIssueSummaryGroup.classList.remove('hidden');
+                diOrdiReference.classList.add('hidden');
+                diOrdiReference.value = '';
+                diBridgeCaseReference.classList.add('hidden');
+                diBridgeCaseReference.value = '';
+                diIssueModal.classList.add('hidden');
+                
+                // Show the first step again
+                step1Container.classList.remove('collapsed');
             });
         });
     </script>
