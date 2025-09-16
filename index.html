@@ -845,24 +845,17 @@
         </section>
 
     </main>
-
-    <!-- Incorrect Referral Modal -->
-    <div id="referral-modal" class="modal-overlay hidden">
+    
+    <!-- Universal Info Modal -->
+    <div id="info-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button type="button" class="modal-close-btn">&times;</button>
-            <h3>Incorrect Referral</h3>
-            <p>Because this was a cold transfer, an incorrect referral form must be raised.</p>
-            <p>Please use the link below to complete the form:</p>
-            <a href="https://forms.office.com/pages/responsepage.aspx?id=iFbzpwCcXk26QSnxRjd6sNgLHVkoLC9BtSpITX1NlXBUOFBUNFo1U0wzVldENTVMQ1lVNEpYSFkxMC4u&route=shorturl" target="_blank" rel="noopener noreferrer" class="modal-link">Open Referral Form</a>
-        </div>
-    </div>
-
-    <!-- DI Issue Modal -->
-    <div id="di-issue-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <button type="button" class="modal-close-btn">&times;</button>
-            <h3>Not a DI Issue</h3>
-            <p>If this is not a DI issue, please do not accept the customer. Refer them to the correct department.</p>
+            <h3 id="info-modal-title"></h3>
+            <p id="info-modal-text"></p>
+            <div id="info-modal-link-container" class="hidden">
+                <p>Please use the link below to complete the form:</p>
+                <a href="https://forms.office.com/pages/responsepage.aspx?id=iFbzpwCcXk26QSnxRjd6sNgLHVkoLC9BtSpITX1NlXBUOFBUNFo1U0wzVldENTVMQ1lVNEpYSFkxMC4u&route=shorturl" target="_blank" rel="noopener noreferrer" class="modal-link">Open Referral Form</a>
+            </div>
         </div>
     </div>
 
@@ -1007,10 +1000,13 @@
             const diOrdiReference = document.getElementById('di-ordi-reference');
             const diBridgeCaseCheckbox = document.getElementById('di-bridge-case-checkbox');
             const diBridgeCaseReference = document.getElementById('di-bridge-case-reference');
-            const referralModal = document.getElementById('referral-modal');
-            const modalCloseBtn = referralModal.querySelector('.modal-close-btn');
-            const diIssueModal = document.getElementById('di-issue-modal');
-            const diIssueModalCloseBtn = diIssueModal.querySelector('.modal-close-btn');
+            
+            // Universal Modal Selectors
+            const infoModal = document.getElementById('info-modal');
+            const infoModalTitle = document.getElementById('info-modal-title');
+            const infoModalText = document.getElementById('info-modal-text');
+            const infoModalLinkContainer = document.getElementById('info-modal-link-container');
+            const infoModalCloseBtn = infoModal.querySelector('.modal-close-btn');
 
 
             // Callback selectors (Standard Workflow)
@@ -1372,13 +1368,10 @@
             diCallFromGuideRadios.forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     const fromGuide = e.target.value === 'Yes';
-                    // Show/hide Albert Flow questions
                     diAlbertFlowGroup.classList.toggle('hidden', !fromGuide);
                     diCorrectFlowGroup.classList.toggle('hidden', !fromGuide);
-                     // Show/hide Cold Transfer question
                     diColdTransferGroup.classList.toggle('hidden', fromGuide);
 
-                    // Reset dependent fields when switching
                     if (!fromGuide) {
                        diReferredToGroup.classList.add('hidden');
                        diAlbertFlowSelect.value = '';
@@ -1386,7 +1379,7 @@
                        document.querySelector('input[name="di-correct-flow"][value="No"]').checked = false;
                     } else {
                        diColdTransferCheckbox.checked = false;
-                       diReferralFormCheckbox.checked = false; // Uncheck referral if switching back to "Yes"
+                       diReferralFormCheckbox.checked = false;
                        diIssueSummaryGroup.classList.remove('hidden');
                     }
                 });
@@ -1395,7 +1388,10 @@
             diColdTransferCheckbox.addEventListener('change', (e) => {
                 if (e.target.checked) {
                     diReferralFormCheckbox.checked = true;
-                    referralModal.classList.remove('hidden'); // Show the modal
+                    infoModalTitle.textContent = 'Incorrect Referral';
+                    infoModalText.textContent = 'Because this was a cold transfer, an incorrect referral form must be raised.';
+                    infoModalLinkContainer.classList.remove('hidden');
+                    infoModal.classList.remove('hidden');
                 }
             });
 
@@ -1405,7 +1401,15 @@
                     diReferredToGroup.classList.toggle('hidden', !isNotDiIssue);
                     diIssueSummaryGroup.classList.toggle('hidden', isNotDiIssue);
                     if (isNotDiIssue) {
-                        diIssueModal.classList.remove('hidden');
+                        diReferralFormCheckbox.checked = true;
+                        infoModalTitle.textContent = 'Action Required';
+                        infoModalText.textContent = 'This is not a DI issue. Please refer the customer to the correct department and raise an incorrect referral form.';
+                        infoModalLinkContainer.classList.remove('hidden');
+                        infoModal.classList.remove('hidden');
+                    } else {
+                        if (!diColdTransferCheckbox.checked) {
+                            diReferralFormCheckbox.checked = false;
+                        }
                     }
                 });
             });
@@ -1421,22 +1425,13 @@
             });
 
             // Close modal listeners
-            const closeModal = () => referralModal.classList.add('hidden');
-            modalCloseBtn.addEventListener('click', closeModal);
-            referralModal.addEventListener('click', (e) => {
-                if (e.target === referralModal) { // Only close if overlay is clicked
+            const closeModal = () => infoModal.classList.add('hidden');
+            infoModalCloseBtn.addEventListener('click', closeModal);
+            infoModal.addEventListener('click', (e) => {
+                if (e.target === infoModal) { // Only close if overlay is clicked
                     closeModal();
                 }
             });
-
-            const closeDiIssueModal = () => diIssueModal.classList.add('hidden');
-            diIssueModalCloseBtn.addEventListener('click', closeDiIssueModal);
-            diIssueModal.addEventListener('click', (e) => {
-                if (e.target === diIssueModal) {
-                    closeDiIssueModal();
-                }
-            });
-
 
             // 8. Handle form submission
             noteForm.addEventListener('submit', (event) => {
@@ -1725,7 +1720,7 @@ ${reason || 'No reason provided.'}
                 diOrdiReference.value = '';
                 diBridgeCaseReference.classList.add('hidden');
                 diBridgeCaseReference.value = '';
-                diIssueModal.classList.add('hidden');
+                infoModal.classList.add('hidden');
                 
                 // Show the first step again
                 step1Container.classList.remove('collapsed');
