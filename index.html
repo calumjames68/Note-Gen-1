@@ -503,8 +503,8 @@
                     <div class="step-content">
                         <div class="form-group choice-group">
                             <label><input type="radio" name="business-area" value="Connections"> Connections</label>
-                            <label><input type="radio" name="business-area" value="Offline"> Offline</label>
-                            <label><input type="radio" name="business-area" value="DI"> DI</label>
+                            <label id="offline-option"><input type="radio" name="business-area" value="Offline"> Offline</label>
+                            <label id="di-option"><input type="radio" name="business-area" value="DI"> DI</label>
                             <label><input type="radio" name="business-area" value="Callbacks"> Callbacks</label>
                         </div>
                     </div>
@@ -1295,7 +1295,17 @@
 
             // --- EVENT LISTENERS ---
 
-            // 1. Business area selection
+            // 1. Admin Mode Check
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('admin') === 'true';
+
+            if (!isAdmin) {
+                document.getElementById('offline-option').classList.add('hidden');
+                document.getElementById('di-option').classList.add('hidden');
+            }
+
+
+            // 2. Business area selection
             businessAreaRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     const selectedValue = event.target.value;
@@ -1316,13 +1326,13 @@
                 });
             });
 
-            // 2. Expand/collapse Step 1
+            // 3. Expand/collapse Step 1
             step1Container.querySelector('h3').addEventListener('click', () => {
                 step1Container.classList.toggle('collapsed');
             });
 
 
-            // 3. Validation radio buttons (standard workflow)
+            // 4. Validation radio buttons (standard workflow)
             validationRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     if (event.target.value === 'yes') {
@@ -1335,7 +1345,7 @@
                 });
             });
 
-            // 4. Conditional logic for Customer Verified section (Offline Workflow)
+            // 5. Conditional logic for Customer Verified section (Offline Workflow)
             customerAnsweredRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     if (event.target.value === 'No') {
@@ -1346,7 +1356,7 @@
                 });
             });
             
-            // 5. Checkbox for second error code
+            // 6. Checkbox for second error code
             addSecondCodeCheckbox.addEventListener('change', () => {
                 secondErrorCodeContainer.classList.toggle('hidden');
                 if (!addSecondCodeCheckbox.checked) {
@@ -1354,7 +1364,7 @@
                 }
             });
 
-            // 6. Checkbox for "No Delay?"
+            // 7. Checkbox for "No Delay?"
             noDelayCheckbox.addEventListener('change', () => {
                 if (noDelayCheckbox.checked) {
                     delayReasonGroup.classList.add('hidden');
@@ -1364,7 +1374,7 @@
                 }
             });
 
-            // 7. DI Workflow conditional logic
+            // 8. DI Workflow conditional logic
             diCallFromGuideRadios.forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     const fromGuide = e.target.value === 'Yes';
@@ -1433,7 +1443,7 @@
                 }
             });
 
-            // 8. Handle form submission
+            // 9. Handle form submission
             noteForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
@@ -1645,7 +1655,7 @@ ${reason || 'No reason provided.'}
                 copyNoteToClipboard(); // Auto-copy the note to clipboard
             });
 
-            // 9. Toggle visibility of callback schedulers
+            // 10. Toggle visibility of callback schedulers
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
                     callbackSchedulerContainer.classList.remove('hidden');
@@ -1683,10 +1693,10 @@ ${reason || 'No reason provided.'}
                 }
             });
 
-            // 10. Handle the "Copy to Clipboard" button click
+            // 11. Handle the "Copy to Clipboard" button click
             copyButton.addEventListener('click', copyNoteToClipboard);
 
-            // 11. Handle form reset
+            // 12. Handle form reset
             noteForm.addEventListener('reset', () => {
                 outputNoteTextarea.value = '';
                 // Hide all main containers
