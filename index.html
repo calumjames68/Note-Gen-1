@@ -513,28 +513,28 @@
                 <!-- STANDARD WORKFLOW CONTAINER -->
                 <div id="main-workflow-container" class="hidden">
                     <!-- STEP 2: VALIDATION -->
-                    <div id="step-2-container" class="form-step">
-                        <h3>Step 2: Have you validated the customer?</h3>
-                        <div class="step-content">
-                            <div class="form-group choice-group">
-                                <label><input type="radio" name="validation" value="yes" id="validate-yes"> Yes</label>
-                                <label><input type="radio" name="validation" value="no" id="validate-no"> No</label>
+                        <div class="form-step">
+                            <h3>Offline: Resolution Status</h3>
+                            <div class="step-content">
+                                <div class="form-group choice-group">
+                                    <label><input type="checkbox" id="offline-resolved"> #Resolved</label>
+                                </div>
+                                 <div class="form-group inline-input-group">
+                                    <label for="offline-number-input">#</label>
+                                    <input type="text" id="offline-number-input" placeholder="Enter number...">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- ... (rest of standard workflow) ... -->
-                    <div id="validation-no-path" class="form-step hidden">
-                        <h3>Step 3: Reason for Failure</h3>
-                        <div class="step-content">
-                            <div class="form-group">
-                                <label for="validation-fail-reason">Why was validation not completed?</label>
-                                <textarea id="validation-fail-reason" rows="4"></textarea>
+                         <div class="form-step">
+                            <h3>Offline: Callback?</h3>
+                            <div class="step-content">
+                                 <div class="form-group">
+                                    <label><input type="checkbox" id="offline-call-me-link"> Call me link used?</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div id="validation-yes-path" class="hidden">
-                        <div id="step-3-container" class="form-step">
-                            <h3>Step 3: Customer Details & Issue Summary</h3>
+                         <div class="form-step">
+                            <h3>Offline: Callback?</h3>
                             <div class="step-content">
                                 <div class="form-group">
                                     <label for="cust-name">Customer Name</label>
@@ -698,9 +698,9 @@
                                     <div id="offline-calendar-body" class="calendar-body"></div>
                                 </div>
                                 <div id="offline-callback-times-container" class="time-picker-container">
-                                      <select id="offline-hour-picker"></select>
-                                      <span>:</span>
-                                      <select id="offline-minute-picker"></select>
+                                    <select id="offline-hour-picker"></select>
+                                    <span>:</span>
+                                    <select id="offline-minute-picker"></select>
                                 </div>
                                 <input type="hidden" id="offline-callback-details" name="offline-callback-details">
                             </div>
@@ -828,6 +828,21 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- CALLBACKS WORKFLOW CONTAINER -->
+                <div id="callbacks-workflow-container" class="hidden">
+                    <div class="form-step">
+                        <h3>Call me link Callback</h3>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label for="callback-error-code">Enter or Search for Error Code</label>
+                                <input type="text" id="callback-error-code" autocomplete="off">
+                                <div id="callback-error-code-results" class="search-results hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="button-group">
                     <button type="submit" class="btn-primary">Generate Note</button>
@@ -955,7 +970,8 @@
             const businessAreaRadios = document.querySelectorAll('input[name="business-area"]');
             const mainWorkflowContainer = document.getElementById('main-workflow-container');
             const offlineWorkflowContainer = document.getElementById('offline-workflow-container');
-            const diWorkflowContainer = document.getElementById('di-workflow-container'); // DI container
+            const diWorkflowContainer = document.getElementById('di-workflow-container'); 
+            const callbacksWorkflowContainer = document.getElementById('callbacks-workflow-container');
             const validationYesPath = document.getElementById('validation-yes-path');
             const validationNoPath = document.getElementById('validation-no-path');
             const validationRadios = document.querySelectorAll('input[name="validation"]');
@@ -1001,6 +1017,10 @@
             const diBridgeCaseCheckbox = document.getElementById('di-bridge-case-checkbox');
             const diBridgeCaseReference = document.getElementById('di-bridge-case-reference');
             
+            // Callbacks Workflow Selectors
+            const callbackErrorCodeInput = document.getElementById('callback-error-code');
+            const callbackErrorCodeResultsContainer = document.getElementById('callback-error-code-results');
+
             // Universal Modal Selectors
             const infoModal = document.getElementById('info-modal');
             const infoModalTitle = document.getElementById('info-modal-title');
@@ -1255,9 +1275,13 @@
 
                     let finalResults = [];
                     const noCodeResult = { code: 'No Code', description: 'No specific error code provided' };
+                    const callMeLinkResult = { code: 'Call me link', description: 'Customer used the call me link' };
 
                     if (noCodeResult.code.toLowerCase().includes(query) || noCodeResult.description.toLowerCase().includes(query)) {
                         finalResults.push(noCodeResult);
+                    }
+                    if (callMeLinkResult.code.toLowerCase().includes(query) || callMeLinkResult.description.toLowerCase().includes(query)) {
+                        finalResults.push(callMeLinkResult);
                     }
 
                     const filteredDb = mockErrorDatabase.filter(item =>
@@ -1284,18 +1308,20 @@
                  // Hide search results when clicking elsewhere
                  document.addEventListener('click', (event) => {
                      if (!inputElement.contains(event.target)) {
-                        resultsContainer.classList.add('hidden');
+                         resultsContainer.classList.add('hidden');
                      }
                  });
             };
 
             setupSearch(delayErrorCodeInput, errorCodeResultsContainer);
             setupSearch(delayErrorCodeInput2, errorCodeResultsContainer2);
+            setupSearch(callbackErrorCodeInput, callbackErrorCodeResultsContainer);
 
 
             // --- EVENT LISTENERS ---
 
             // 1. Admin Mode Check
+            /*
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('admin') === 'true';
 
@@ -1303,23 +1329,30 @@
                 document.getElementById('offline-option').classList.add('hidden');
                 document.getElementById('di-option').classList.add('hidden');
             }
+            */
 
 
             // 2. Business area selection
             businessAreaRadios.forEach(radio => {
                 radio.addEventListener('change', (event) => {
                     const selectedValue = event.target.value;
+                    // Hide all workflows first
                     mainWorkflowContainer.classList.add('hidden');
                     offlineWorkflowContainer.classList.add('hidden');
                     diWorkflowContainer.classList.add('hidden');
-                    
+                    callbacksWorkflowContainer.classList.add('hidden');
+
+                    // Show the selected one and handle collapsing
                     if (selectedValue === 'Offline') {
                         offlineWorkflowContainer.classList.remove('hidden');
                         step1Container.classList.add('collapsed');
                     } else if (selectedValue === 'DI') {
                         diWorkflowContainer.classList.remove('hidden');
                         step1Container.classList.add('collapsed');
-                    } else {
+                    } else if (selectedValue === 'Callbacks') {
+                        callbacksWorkflowContainer.classList.remove('hidden');
+                        step1Container.classList.add('collapsed');
+                    } else { // This covers 'Connections'
                         mainWorkflowContainer.classList.remove('hidden');
                         step1Container.classList.remove('collapsed');
                     }
@@ -1418,7 +1451,7 @@
                         infoModal.classList.remove('hidden');
                     } else {
                         if (!diColdTransferCheckbox.checked) {
-                            diReferralFormCheckbox.checked = false;
+                             diReferralFormCheckbox.checked = false;
                         }
                     }
                 });
@@ -1592,6 +1625,16 @@ Next Actions:
 ${nextActions || 'No next actions specified.'}
                     `.trim().replace(/^\s*\n/gm, ''); // clean up empty lines
 
+                } else if (selectedArea === 'Callbacks') {
+                    // --- CALLBACKS NOTE GENERATION ---
+                    const errorCode = callbackErrorCodeInput.value.trim();
+
+                    finalNote = `
+---[ CALLBACK WORKFLOW ]---------------------------------
+${formatLine('Business Area', 'Call me link Callback')}
+${formatLine('Error Code', errorCode || 'No Code Provided')}
+`.trim();
+
                 } else {
                     // --- STANDARD NOTE GENERATION ---
                     const validateYes = document.getElementById('validate-yes').checked;
@@ -1703,6 +1746,7 @@ ${reason || 'No reason provided.'}
                 mainWorkflowContainer.classList.add('hidden');
                 offlineWorkflowContainer.classList.add('hidden');
                 diWorkflowContainer.classList.add('hidden');
+                callbacksWorkflowContainer.classList.add('hidden');
                 
                 // Reset standard workflow
                 validationYesPath.classList.add('hidden');
