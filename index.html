@@ -510,31 +510,26 @@
                     </div>
                 </div>
 
-                <!-- STANDARD WORKFLOW CONTAINER -->
+                <!-- STANDARD WORKFLOW CONTAINER (Connections) -->
                 <div id="main-workflow-container" class="hidden">
                     <!-- STEP 2: VALIDATION -->
+                    <div class="form-step">
+                        <h3>Step 2: Customer Validation</h3>
+                        <div class="step-content">
+                            <fieldset class="form-group">
+                                <legend>Did the customer pass validation?</legend>
+                                <div class="choice-group">
+                                    <label><input type="radio" id="validate-yes" name="validation" value="yes"> Yes</label>
+                                    <label><input type="radio" name="validation" value="no"> No</label>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: CUSTOMER DETAILS (VALIDATION 'YES' PATH) -->
+                    <div id="validation-yes-path" class="hidden">
                         <div class="form-step">
-                            <h3>Offline: Resolution Status</h3>
-                            <div class="step-content">
-                                <div class="form-group choice-group">
-                                    <label><input type="checkbox" id="offline-resolved"> #Resolved</label>
-                                </div>
-                                 <div class="form-group inline-input-group">
-                                    <label for="offline-number-input">#</label>
-                                    <input type="text" id="offline-number-input" placeholder="Enter number...">
-                                </div>
-                            </div>
-                        </div>
-                         <div class="form-step">
-                            <h3>Offline: Callback?</h3>
-                            <div class="step-content">
-                                 <div class="form-group">
-                                    <label><input type="checkbox" id="offline-call-me-link"> Call me link used?</label>
-                                </div>
-                            </div>
-                        </div>
-                         <div class="form-step">
-                            <h3>Offline: Callback?</h3>
+                            <h3>Step 3: Customer & Issue Details</h3>
                             <div class="step-content">
                                 <div class="form-group">
                                     <label for="cust-name">Customer Name</label>
@@ -593,6 +588,17 @@
                                     </div>
                                     <input type="hidden" id="callback-details" name="callback-details">
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- REASON FOR FAILED VALIDATION (VALIDATION 'NO' PATH) -->
+                    <div id="validation-no-path" class="form-step hidden">
+                        <h3>Reason for Failed Validation</h3>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label for="validation-fail-reason">Please provide the reason why validation was not completed</label>
+                                <textarea id="validation-fail-reason" name="validation-fail-reason" rows="4"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1523,9 +1529,9 @@
                     const callbackBooked = offlineCallbackBookedCheckbox.checked;
                     let callbackDetailsText = 'No';
                      if (callbackBooked && offlineCallbackDetailsInput.value) {
-                          callbackDetailsText = `Yes - ${formatDateTimeForNote(offlineCallbackDetailsInput.value)}`;
+                           callbackDetailsText = `Yes - ${formatDateTimeForNote(offlineCallbackDetailsInput.value)}`;
                     } else if (callbackBooked) {
-                          callbackDetailsText = `Yes (No time selected)`;
+                           callbackDetailsText = `Yes (No time selected)`;
                     }
 
 
@@ -1572,9 +1578,9 @@ ${additionalInfo || 'No additional info provided.'}
                     const callbackBooked = diCallbackBookedCheckbox.checked;
                     let callbackDetailsText = 'No';
                      if (callbackBooked && diCallbackDetailsInput.value) {
-                          callbackDetailsText = `Yes - ${formatDateTimeForNote(diCallbackDetailsInput.value)}`;
+                           callbackDetailsText = `Yes - ${formatDateTimeForNote(diCallbackDetailsInput.value)}`;
                     } else if (callbackBooked) {
-                          callbackDetailsText = `Yes (No time selected)`;
+                           callbackDetailsText = `Yes (No time selected)`;
                     }
                    
                     let flowDetails = '';
