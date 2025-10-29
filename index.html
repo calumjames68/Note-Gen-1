@@ -632,6 +632,7 @@
                             <div class="form-group choice-group">
                                 <label><input type="checkbox" id="no-delay-checkbox"> No Delay?</label>
                             </div>
+                            <!-- REMOVED THE DUPLICATE "NO DELAY?" CHECKBOX -->
                         </div>
                     </div>
                     <div class="form-step">
@@ -994,6 +995,7 @@
             const delayReasonSelect = document.getElementById('delay-reason');
             const delayReasonGroup = document.getElementById('delay-reason-group');
             const noDelayCheckbox = document.getElementById('no-delay-checkbox');
+            // REMOVED offlineGuideCallbackBookedCheckbox selector
             const errorCodeResultsContainer = document.getElementById('error-code-results');
             const addSecondCodeCheckbox = document.getElementById('add-second-code-checkbox');
             const secondErrorCodeContainer = document.getElementById('second-error-code-container');
@@ -1282,12 +1284,16 @@
                     let finalResults = [];
                     const noCodeResult = { code: 'No Code', description: 'No specific error code provided' };
                     const callMeLinkResult = { code: 'Call me link', description: 'Customer used the call me link' };
+                    const guideBookedCallbackResult = { code: 'Guide Booked Callback', description: 'Guide booked a callback for the customer' }; // ADDED THIS
 
                     if (noCodeResult.code.toLowerCase().includes(query) || noCodeResult.description.toLowerCase().includes(query)) {
                         finalResults.push(noCodeResult);
                     }
                     if (callMeLinkResult.code.toLowerCase().includes(query) || callMeLinkResult.description.toLowerCase().includes(query)) {
                         finalResults.push(callMeLinkResult);
+                    }
+                    if (guideBookedCallbackResult.code.toLowerCase().includes(query) || guideBookedCallbackResult.description.toLowerCase().includes(query)) { // ADDED THIS
+                        finalResults.push(guideBookedCallbackResult);
                     }
 
                     const filteredDb = mockErrorDatabase.filter(item =>
@@ -1512,6 +1518,7 @@
                         delayReasonText = delayReasonSelect.options[delayReasonSelect.selectedIndex].text;
                     }
                     
+                    // REMOVED guideBookedCallback variable
                     const preTextSent = document.querySelector('input[name="pre-text-sent"]:checked')?.value || 'N/A';
                     const customerAnswered = document.querySelector('input[name="customer-answered"]:checked')?.value || 'N/A';
                     let customerVerified = document.querySelector('input[name="customer-verified"]:checked')?.value || 'N/A';
@@ -1529,9 +1536,9 @@
                     const callbackBooked = offlineCallbackBookedCheckbox.checked;
                     let callbackDetailsText = 'No';
                      if (callbackBooked && offlineCallbackDetailsInput.value) {
-                           callbackDetailsText = `Yes - ${formatDateTimeForNote(offlineCallbackDetailsInput.value)}`;
+                          callbackDetailsText = `Yes - ${formatDateTimeForNote(offlineCallbackDetailsInput.value)}`;
                     } else if (callbackBooked) {
-                           callbackDetailsText = `Yes (No time selected)`;
+                          callbackDetailsText = `Yes (No time selected)`;
                     }
 
 
@@ -1550,7 +1557,7 @@
 ---[ OFFLINE WORKFLOW ]----------------------------------
 ${formatLine('Business Area', 'Offline')}
 ${formatLine('Delay Error Code(s)', combinedErrorCodes)}
-${formatLine('Delay Reason', delayReasonText.includes('Select') ? 'N/A' : delayReasonText)}
+${formatLine('Delay Reason', delayReasonText.includes('Select') ? 'N/F' : delayReasonText)}
 ${formatLine('Contact Summary', contactAttempts)}
 ${formatLine('SMS Summary', smsAttempts)}
 ${formatLine('Callback Booked', callbackDetailsText)}
@@ -1578,9 +1585,9 @@ ${additionalInfo || 'No additional info provided.'}
                     const callbackBooked = diCallbackBookedCheckbox.checked;
                     let callbackDetailsText = 'No';
                      if (callbackBooked && diCallbackDetailsInput.value) {
-                           callbackDetailsText = `Yes - ${formatDateTimeForNote(diCallbackDetailsInput.value)}`;
+                          callbackDetailsText = `Yes - ${formatDateTimeForNote(diCallbackDetailsInput.value)}`;
                     } else if (callbackBooked) {
-                           callbackDetailsText = `Yes (No time selected)`;
+                          callbackDetailsText = `Yes (No time selected)`;
                     }
                    
                     let flowDetails = '';
@@ -1767,6 +1774,7 @@ ${reason || 'No reason provided.'}
                 delayErrorCodeInput2.value = '';
                 noDelayCheckbox.checked = false;
                 delayReasonGroup.classList.remove('hidden');
+                // REMOVED offlineGuideCallbackBookedCheckbox.checked = false;
                 
                 // Reset DI workflow
                 diCallbackSchedulerContainer.classList.add('hidden');
