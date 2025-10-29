@@ -134,6 +134,26 @@
             font-size: 1rem;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
+        
+        /* Apply medium weight to placeholders */
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            font-weight: 500;
+            color: #999; /* Lighter color for placeholder */
+            opacity: 1; /* Firefox */
+        }
+
+        input[type="text"]::-ms-input-placeholder,
+        textarea::-ms-input-placeholder {
+            font-weight: 500;
+            color: #999;
+        }
+
+        input[type="text"]::-ms-input-placeholder,
+        textarea::-ms-input-placeholder {
+            font-weight: 500;
+            color: #999;
+        }
 
         input[type="text"]:focus,
         input[type="tel"]:focus,
@@ -611,7 +631,7 @@
                         <div class="step-content">
                             <div class="form-group">
                                 <label for="delay-error-code">Enter or Search for Delay Error Code</label>
-                                <input type="text" id="delay-error-code" autocomplete="off">
+                                <input type="text" id="delay-error-code" autocomplete="off" placeholder="Select error code...">
                                 <div id="error-code-results" class="search-results hidden"></div>
                             </div>
                             <div class="form-group choice-group">
@@ -619,7 +639,7 @@
                             </div>
                             <div class="form-group hidden" id="second-error-code-container">
                                 <label for="delay-error-code-2">Enter or Search for Second Delay Error Code</label>
-                                <input type="text" id="delay-error-code-2" autocomplete="off">
+                                <input type="text" id="delay-error-code-2" autocomplete="off" placeholder="Select second error code...">
                                 <div id="error-code-results-2" class="search-results hidden"></div>
                             </div>
                              <div class="form-group" id="delay-reason-group">
@@ -632,7 +652,6 @@
                             <div class="form-group choice-group">
                                 <label><input type="checkbox" id="no-delay-checkbox"> No Delay?</label>
                             </div>
-                            <!-- REMOVED THE DUPLICATE "NO DELAY?" CHECKBOX -->
                         </div>
                     </div>
                     <div class="form-step">
@@ -674,14 +693,17 @@
                         </div>
                     </div>
                     <div class="form-step">
-                        <h3>Offline: Resolution Status</h3>
+                        <h3>Offline: Resolved?</h3>
                         <div class="step-content">
-                            <div class="form-group choice-group">
+                            <div class="form-group choice-group" id="offline-resolved-group">
                                 <label><input type="checkbox" id="offline-resolved"> #Resolved</label>
                             </div>
-                             <div class="form-group inline-input-group">
+                             <div class="form-group inline-input-group" id="offline-number-group">
                                 <label for="offline-number-input">#</label>
                                 <input type="text" id="offline-number-input" placeholder="Enter number...">
+                            </div>
+                            <div class="form-group choice-group">
+                                <label><input type="checkbox" id="offline-no-mobile"> Cust has no mobile</label>
                             </div>
                         </div>
                     </div>
@@ -843,7 +865,7 @@
                         <div class="step-content">
                             <div class="form-group">
                                 <label for="callback-error-code">Enter or Search for Error Code</label>
-                                <input type="text" id="callback-error-code" autocomplete="off">
+                                <input type="text" id="callback-error-code" autocomplete="off" placeholder="Select error code...">
                                 <div id="callback-error-code-results" class="search-results hidden"></div>
                             </div>
                         </div>
@@ -896,7 +918,7 @@
                 { id: 'developer_delays', category: 'Delays', dropdownText: 'Developer Delays (3 Weeks)'},
                 { id: 'duct_cable_stock', category: 'Delays', dropdownText: 'Duct and Cable Stock (3 Weeks)'},
                 { id: 'e_d_side_fault', category: 'Delays', dropdownText: 'E-side or D-side Fault (20 Days)'},
-                { id: 'hoist_availability', category: 'Delays', dropdownText: 'Hoist Availability (3 Weeks)'},
+                { id: 'hoist_availability', category: 'Delays', dropdownText: 'Hoist Availability (3Weeks)'},
                 { id: 'no_capacity', category: 'Delays', dropdownText: 'No Capacity Available (12 Weeks)'},
                 { id: 'planning_design', category: 'Delays', dropdownText: 'Planning and Design (30 Days)'},
                 { id: 'ptw_delay', category: 'Delays', dropdownText: 'PTW (Permission to Work) Delay'},
@@ -955,7 +977,7 @@
                 { code: '101146', description: "End Customer provided instructions different to those from the CP" },
                 { code: '101147', description: "Engineer missed the slot or was unable to complete the installation" },
                 { code: '101148', description: "Engineer missed the slot or was unable to complete the installation" },
-                { code: '101153', description: "Engineer missed the slot or was unable to complete the installation" },
+                { code: '1D1153', description: "Engineer missed the slot or was unable to complete the installation" },
                 { code: '101158', description: "Appointment missed due to an End Customer missed scenario" },
                 { code: '101160', description: "Order passed to Network Addressing Team (NAT) to identify the address" },
                 { code: '101161', description: "Order requires a survey (various reasons)" },
@@ -995,7 +1017,6 @@
             const delayReasonSelect = document.getElementById('delay-reason');
             const delayReasonGroup = document.getElementById('delay-reason-group');
             const noDelayCheckbox = document.getElementById('no-delay-checkbox');
-            // REMOVED offlineGuideCallbackBookedCheckbox selector
             const errorCodeResultsContainer = document.getElementById('error-code-results');
             const addSecondCodeCheckbox = document.getElementById('add-second-code-checkbox');
             const secondErrorCodeContainer = document.getElementById('second-error-code-container');
@@ -1003,7 +1024,10 @@
             const errorCodeResultsContainer2 = document.getElementById('error-code-results-2');
             const additionalInfoInput = document.getElementById('additional-info');
             const offlineResolvedCheckbox = document.getElementById('offline-resolved');
+            const offlineResolvedGroup = document.getElementById('offline-resolved-group');
             const offlineNumberInput = document.getElementById('offline-number-input');
+            const offlineNumberGroup = document.getElementById('offline-number-group');
+            const offlineNoMobileCheckbox = document.getElementById('offline-no-mobile');
             const customerAnsweredRadios = document.querySelectorAll('input[name="customer-answered"]');
             const customerVerifiedGroup = document.getElementById('customer-verified-group');
 
@@ -1215,8 +1239,8 @@
                 main_currentMonth--;
                 if (main_currentMonth < 0) { main_currentMonth = 11; main_currentYear--; }
                 renderCalendar(main_currentYear, main_currentMonth, calendarBody, monthYearDisplay, (date) => {
-                     selectedDateMain = date;
-                     setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20, 5);
+                       selectedDateMain = date;
+                       setupTimePicker(mainHourPicker, mainMinutePicker, callbackDetailsInput, selectedDateMain, 8, 20, 5);
                 });
             });
             nextMonthBtn.addEventListener('click', () => {
@@ -1284,7 +1308,8 @@
                     let finalResults = [];
                     const noCodeResult = { code: 'No Code', description: 'No specific error code provided' };
                     const callMeLinkResult = { code: 'Call me link', description: 'Customer used the call me link' };
-                    const guideBookedCallbackResult = { code: 'Guide Booked Callback', description: 'Guide booked a callback for the customer' }; // ADDED THIS
+                    const guideBookedCallbackResult = { code: 'Guide Booked Callback', description: 'Guide booked a callback for customer' };
+
 
                     if (noCodeResult.code.toLowerCase().includes(query) || noCodeResult.description.toLowerCase().includes(query)) {
                         finalResults.push(noCodeResult);
@@ -1292,7 +1317,7 @@
                     if (callMeLinkResult.code.toLowerCase().includes(query) || callMeLinkResult.description.toLowerCase().includes(query)) {
                         finalResults.push(callMeLinkResult);
                     }
-                    if (guideBookedCallbackResult.code.toLowerCase().includes(query) || guideBookedCallbackResult.description.toLowerCase().includes(query)) { // ADDED THIS
+                    if (guideBookedCallbackResult.code.toLowerCase().includes(query) || guideBookedCallbackResult.description.toLowerCase().includes(query)) {
                         finalResults.push(guideBookedCallbackResult);
                     }
 
@@ -1488,7 +1513,24 @@
                 }
             });
 
-            // 9. Handle form submission
+            // 9. Offline Resolution Status logic
+            offlineNoMobileCheckbox.addEventListener('change', () => {
+                if (offlineNoMobileCheckbox.checked) {
+                    // Hide other options
+                    offlineResolvedGroup.classList.add('hidden');
+                    offlineNumberGroup.classList.add('hidden');
+                    // Uncheck and clear them
+                    offlineResolvedCheckbox.checked = false;
+                    offlineNumberInput.value = '';
+                } else {
+                    // Show them again
+                    offlineResolvedGroup.classList.remove('hidden');
+                    offlineNumberGroup.classList.remove('hidden');
+                }
+            });
+
+
+            // 10. Handle form submission
             noteForm.addEventListener('submit', (event) => {
                 event.preventDefault();
 
@@ -1518,7 +1560,6 @@
                         delayReasonText = delayReasonSelect.options[delayReasonSelect.selectedIndex].text;
                     }
                     
-                    // REMOVED guideBookedCallback variable
                     const preTextSent = document.querySelector('input[name="pre-text-sent"]:checked')?.value || 'N/A';
                     const customerAnswered = document.querySelector('input[name="customer-answered"]:checked')?.value || 'N/A';
                     let customerVerified = document.querySelector('input[name="customer-verified"]:checked')?.value || 'N/A';
@@ -1531,6 +1572,7 @@
                     
                     const isResolved = offlineResolvedCheckbox.checked;
                     const numberValue = offlineNumberInput.value.trim();
+                    const noMobile = offlineNoMobileCheckbox.checked;
                     const additionalInfo = additionalInfoInput.value.trim();
                     
                     const callbackBooked = offlineCallbackBookedCheckbox.checked;
@@ -1542,12 +1584,20 @@
                     }
 
 
-                    let hashtags = [];
-                    if (isResolved) {
-                        hashtags.push('#Resolved');
-                    }
-                    if (numberValue) {
-                        hashtags.push(`#${numberValue}`);
+                    let resolutionText = 'N/A';
+                    if (noMobile) {
+                        resolutionText = 'Customer has no mobile';
+                    } else {
+                        let hashtags = [];
+                        if (isResolved) {
+                            hashtags.push('#Resolved');
+                        }
+                        if (numberValue) {
+                            hashtags.push(`#${numberValue}`);
+                        }
+                        if (hashtags.length > 0) {
+                            resolutionText = hashtags.join(' ');
+                        }
                     }
                     
                     const contactAttempts = `Answered: ${customerAnswered} | Verified: ${customerVerified}`;
@@ -1557,11 +1607,11 @@
 ---[ OFFLINE WORKFLOW ]----------------------------------
 ${formatLine('Business Area', 'Offline')}
 ${formatLine('Delay Error Code(s)', combinedErrorCodes)}
-${formatLine('Delay Reason', delayReasonText.includes('Select') ? 'N/F' : delayReasonText)}
+${formatLine('Delay Reason', delayReasonText.includes('Select') ? 'N/A' : delayReasonText)}
 ${formatLine('Contact Summary', contactAttempts)}
 ${formatLine('SMS Summary', smsAttempts)}
 ${formatLine('Callback Booked', callbackDetailsText)}
-${formatLine('Resolution', hashtags.join(' ') || 'N/A')}
+${formatLine('Resolved', resolutionText)}
 
 ---[ ADDITIONAL INFO ]-----------------------------------
 
@@ -1711,7 +1761,7 @@ ${reason || 'No reason provided.'}
                 copyNoteToClipboard(); // Auto-copy the note to clipboard
             });
 
-            // 10. Toggle visibility of callback schedulers
+            // 11. Toggle visibility of callback schedulers
             callbackBookedCheckbox.addEventListener('change', () => {
                 if (callbackBookedCheckbox.checked) {
                     callbackSchedulerContainer.classList.remove('hidden');
@@ -1749,10 +1799,10 @@ ${reason || 'No reason provided.'}
                 }
             });
 
-            // 11. Handle the "Copy to Clipboard" button click
+            // 12. Handle the "Copy to Clipboard" button click
             copyButton.addEventListener('click', copyNoteToClipboard);
 
-            // 12. Handle form reset
+            // 13. Handle form reset
             noteForm.addEventListener('reset', () => {
                 outputNoteTextarea.value = '';
                 // Hide all main containers
@@ -1774,7 +1824,11 @@ ${reason || 'No reason provided.'}
                 delayErrorCodeInput2.value = '';
                 noDelayCheckbox.checked = false;
                 delayReasonGroup.classList.remove('hidden');
-                // REMOVED offlineGuideCallbackBookedCheckbox.checked = false;
+                
+                // Reset resolution status
+                offlineNoMobileCheckbox.checked = false;
+                offlineResolvedGroup.classList.remove('hidden');
+                offlineNumberGroup.classList.remove('hidden');
                 
                 // Reset DI workflow
                 diCallbackSchedulerContainer.classList.add('hidden');
@@ -1789,7 +1843,7 @@ ${reason || 'No reason provided.'}
                 diBridgeCaseReference.classList.add('hidden');
                 diBridgeCaseReference.value = '';
                 infoModal.classList.add('hidden');
-                
+
                 // Show the first step again
                 step1Container.classList.remove('collapsed');
             });
